@@ -3,6 +3,7 @@ from pprint import pprint
 import nltk
 from nltk.parse.stanford import StanfordDependencyParser
 import re
+import numpy
 
 # Paths for NLTK models
 path_to_jar = 'stanford-corenlp-full-2017-06-09/stanford-corenlp-3.8.0.jar' 
@@ -81,12 +82,22 @@ def transition_system(problem):
 	# Get the numbers pointed by alignments.
 	numbers = []  
 	for index in alignment:
+		number = ""
+		number += question[index]
+		for i in range(index+1, len(question)):
+			if question[i].isdigit():
+				number += question[i]
+			else:
+				break
+		numbers.append(int(number))
 
+	print("Numbers extracted from alignments: " + str(numbers))
 
+	matrix = numpy.zeros((len(numbers), len(numbers)))
 
-	print(question[alignment[0]])
-	print(question[alignment[1]])
-	print(question[alignment[2]])
+	for i in range(0, matrix.shape[0]):
+		matrix[i][i] = 1
+	print(matrix)
 
 
 
@@ -94,7 +105,7 @@ def transition_system(problem):
 if __name__ == '__main__':
 
 	# Read the data
-	data = read_data_json("data/MultiArith.json")
+	data = read_data_json("data/SingleOP.json")
 	#pprint(data)
 
 	# Report dataset stats
