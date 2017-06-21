@@ -3,6 +3,9 @@ import re
 import string
 from collections import OrderedDict, Counter
 import nltk
+import random 
+import itertools
+import sys 
 
 # Returns: list of dicts
 def read_data_json(filename):
@@ -139,6 +142,7 @@ def extract_features2(data):
 	counter = 0
 
 	removed_instances = []
+
 	for math_problem in data:
 		if counter >= 0 and counter not in removed_instances:
 			question = math_problem['sQuestion']
@@ -146,10 +150,6 @@ def extract_features2(data):
 			equation = str(math_problem['lEquations'][0])
 			index = math_problem['iIndex']
 			features = Counter()
-
-			print("Question: " + question)
-			print("Equation: " + equation)
-			print("Alignment:" + str(alignment))
 
 			# Get the numbers pointed by alignments.
 			numbers = []  
@@ -164,7 +164,7 @@ def extract_features2(data):
 				numbers.append(int(number))
 
 			# ***NOTE***: Numbers extracted appear in the right sequence that should be used to fill-in the template. 
-			print("Numbers extracted from alignments: " + str(numbers))
+			#print("Numbers extracted from alignments: " + str(numbers))
 
 			# Feature 1: number_parameter features (e.g. num1_a, num2_c, num3_b)
 			original_number_order = sorted(alignment, reverse=False) # order in which the numbers appear in the question (not in the template)
@@ -177,8 +177,38 @@ def extract_features2(data):
 				else:
 					features["num"+str(i+1)+"_c"] += 1
 
+			# Compute the numbers as appear in the text (not in template)
+			num1 = -1
+			num2 = -1
+			num3 = -1
+
+			if alignment[0] < alignment[1] < alignment[2]: # num1, num2, num3
+				num1 = numbers[0]
+				num2 = numbers[1]
+				num3 = numbers[2]
+			elif alignment[0] < alignment[2] < alignment[1]: 
+				num1 = numbers[0]
+				num2 = numbers[2]
+				num3 = numbers[1]
+			elif alignment[1] < alignment[0] < alignment[2]:
+				num1 = numbers[1]
+				num2 = numbers[0]
+				num3 = numbers[2]
+			elif alignment[1] < alignment[2] < alignment[0]: 
+				num1 = numbers[1]
+				num2 = numbers[2]
+				num3 = numbers[0]
+			elif alignment[2] < alignment[0] < alignment[1]:
+				num1 = numbers[2]
+				num2 = numbers[0]
+				num3 = numbers[1]
+			else:
+				num1 = numbers[2]
+				num2 = numbers[1]
+				num3 = numbers[0]
 
 			# Feature 2: parameter1_verb_parameter2_verb->op#_'op' (e.g. a_had_b_had->op1_+)
+
 
 
 			# Get the sentences of each problem/question
@@ -206,14 +236,14 @@ def extract_features2(data):
 			#	if not sentence_contains_numbers[i-sentences_removed]:
 			#		sentences.pop(i-sentences_removed)
 					#sentences_removed+=1
-			print(sentences_final)
+			#print(sentences_final)
 
 			# We need to compute the PoS tags in order to get the verbs which are related to the parameters a, b and c.
 			nums_with_verbs = []
 			for sentence in sentences_final:
-				print(sentence)
+				#print(sentence)
 				sentence_pos = nltk.pos_tag(nltk.word_tokenize(sentence))
-				print(sentence_pos)
+				#print(sentence_pos)
 				for i in range(0, len(sentence_pos)):
 					if sentence_pos[i][0].isdigit() and 'CD' == sentence_pos[i][1]:
 						if int(sentence_pos[i][0]) in numbers:
@@ -237,7 +267,7 @@ def extract_features2(data):
 							if not verb_found:
 								nums_with_verbs.append((sentence_pos[i][0], "NOT_FOUND"))
 		
-			print(nums_with_verbs)
+			#print(nums_with_verbs)
 
 			# Now we need to sort the list according to the sequence that numbers will appear in the template. 
 			nums_with_verbs_sorted = []
@@ -272,7 +302,7 @@ def extract_features2(data):
 				print("ERROR: Failed to sort nums_with_verbs list.")
 
 			nums_with_verbs_sorted = nums_with_verbs_sorted[::-1]	# index=0 -> a, index=1 -> b, index=2 -> c	
-			print("Nums with verbs - sorted: " + str(nums_with_verbs_sorted))
+			#print("Nums with verbs - sorted: " + str(nums_with_verbs_sorted))
 
 			# Extract the signs/operations from the equation
 			# form left to right
@@ -296,11 +326,205 @@ def extract_features2(data):
 
 			id_features_dict[counter] = features
 
+			id_features_dict[counter] = {}
+			id_features_dict[counter]['features'] = features
+			id_features_dict[counter]['question'] = question
+			id_features_dict[counter]['equation'] = equation
+			id_features_dict[counter]['numbers'] = numbers # in the correct sequence that matches the tempalte
+			id_features_dict[counter]['num1'] = num1 # first number that appears in the text
+			id_features_dict[counter]['num2'] = num2 # second number that appears in the text
+			id_features_dict[counter]['num3'] = num3 # third number that appears in the text
+			id_features_dict[counter]['alignment'] = alignment
+			id_features_dict[counter]['nums_with_verbs_sorted'] = nums_with_verbs_sorted
+
 		counter += 1
 
+	return id_features_dict
+
+# Initialise a dictionary of weights. 
+def initialise_weights(featurised_data):
+	weights = OrderedDict()
+
+	for sentence in featurised_data.values():
+		for feature in sentence['features']:
+			if feature not in weights.keys():
+				weights[feature] = 0
+	return weights
+
+# Function for shuffling an OrderedDict
+def shuffle(data):
+    # Shuffle the keys
+    keys = list(data.keys())
+    # Fix the random seed so that results are reproducible. 
+    random.seed(26)
+    random.shuffle(keys)
+
+    # Write the shuffled keys in another dictionary.
+    shuffled_dictionary = OrderedDict()
+    for key in keys:
+        shuffled_dictionary[key] = data[key]
+
+    return shuffled_dictionary
+
+
+# Function for computing all the combinations of the equation (a op b) op c
+def get_equation_combinations():
+	symbol = ['a', 'b', 'c']
+	op = ['+', '-', '/', '*']
+	combinations = []
+	for symbols in itertools.permutations(symbol):
+	    for ops in itertools.product(op, repeat=2):
+	        combinations.append("(%s %s %s) %s %s" % (
+	            symbols[0], ops[0], symbols[1], ops[1], symbols[2]))
+	return combinations
+
+
+# Extract combination's features
+def extract_combination_features(problem, combination):
+	alignment = problem['alignment']
+	#numbers = problem['numbers'] # in the correct sequence wrt the template
+	num1 = problem['num1']
+	num2 = problem['num2']
+	num3 = problem['num3']
+	features = Counter()
+
+	# Feature 1: number_parameter features (e.g. num1_a, num2_c, num3_b)
+	# Extract the numbers as appear in this combination
+	numbers = []
+	temp = re.sub('[()]', '', combination)
+	temp2 = temp.split(" ")
+	for t in temp2:
+		if t.isdigit():
+			numbers.append(int(t))
+
+	num1_found = False
+	num2_found = False
+	num3_found = False
+
+	parameter = {}
+	parameter[0] = 'a'
+	parameter[1] = 'b'
+	parameter[2] = 'c'
+
+	for i in range(0, len(numbers)): # go through the numbers in the sequence that appear in the template
+		if numbers[i] == num1 and not num1_found:
+			features['num1_'+parameter[i]] += 1
+			num1_found = True
+		elif numbers[i] == num2 and not num2_found:
+			features['num2_'+parameter[i]] += 1 
+			num2_found = True
+		elif numbers[i] == num3 and not num3_found:
+			features['num3_'+parameter[i]] += 1
+			num3_found = True
+		else: 
+			print("ERROR: Failed to extract number_parameter feature for combination!")
+
+
+	print(combination)
+	#print(alignment)
+	print(numbers)
+	print("Num1: " + str(num1) + ", Num2: " + str(num2) + ", Num3: " + str(num3))
+
+	# Feature 2: parameter1_verb_parameter2_verb->op#_'op' (e.g. a_had_b_had->op1_+)
+	nums_with_verbs = problem['nums_with_verbs_sorted']
+	print(nums_with_verbs)
+
+	# Sort nums_with_verbs according to the new template. 
+	nums_with_verbs_sorted = []
+
+
+	for i in range(0, len(numbers)):
+		for j in range(0, len(nums_with_verbs)):
+			if numbers[i] == int(nums_with_verbs[j][0]):
+				nums_with_verbs_sorted.append(nums_with_verbs[j])
+	print(nums_with_verbs_sorted)
+
+	# Construct features
+	# Extract the signs/operations from the equation
+	# form left to right
+	operations = []
+	for char in combination:
+		if char == "+":
+			operations.append("+")
+		elif char == "-":
+			operations.append("-")
+		elif char == "*":
+			operations.append("*")
+		elif char == "/":
+			operations.append("/")
+
+
+	# Construct the final features 
+	# a op b
+	features["a_"+nums_with_verbs_sorted[0][1]+"_b_"+nums_with_verbs_sorted[1][1]+"->op1_"+operations[0]] += 1
+	# b op c
+	features["b_"+nums_with_verbs_sorted[0][1]+"_c_"+nums_with_verbs_sorted[1][1]+"->op2_"+operations[1]] += 1	
+
+	print("Features: " + str(features))
+	print("")
+
+	return features
 
 
 
+# Function to compute argmax operation. 
+# TEMPLATE: (a op b) op c
+def argmax(problem, weights):
+	print(problem)
+	question = problem['question']
+	features = problem['features']
+	numbers = problem['numbers'] # sequence: a, b, c
+	nums_with_verbs_sorted = problem['nums_with_verbs_sorted'] # index 0 -> a, index 1 -> b, index 2 -> c
+ 
+
+	# Compute the possible combinations for the problem. 
+	combinations = get_equation_combinations()
+
+	# Construct each combination and compute the features and score for each. 
+	for combination in combinations:
+		combination_filled_in = ""
+		for char in combination:
+			if char == 'a':
+				combination_filled_in += str(numbers[0])
+			elif char == 'b':
+				combination_filled_in += str(numbers[1])
+			elif char == 'c':
+				combination_filled_in += str(numbers[2])
+			else:
+				combination_filled_in += char
+		#print(combination_filled_in)
+
+		# Extract features for the combination. 
+		combination_features = extract_combination_features(problem, combination_filled_in)
+
+
+
+
+
+
+
+
+
+
+
+
+# Training a structured perceptron to learn the features' weights. 
+def train(data, iterations=1):
+	# Initialize weights 
+	weights = initialise_weights(data)
+
+	for i in range(iterations):
+		# Shuffle data
+		#data = shuffle(data)
+		counter = 0
+		for problem in data:
+			if counter >= 0:
+				features = data[problem]['features']
+
+				# Predict the sequence of numbers and operations according to the template. 
+				y_hat = argmax(data[problem], weights)
+
+			counter += 1
 
 
 if __name__ == "__main__":
@@ -314,9 +538,13 @@ if __name__ == "__main__":
 	# Split the data into testing and training sents
 	training_data, testing_data = cross_validation(data)
 
-	# Extract features
-	#extract_features(data)
-
-	# Extract features of training data points
+	# Extract features of training and testing data points
 	featurised_sentences_dict = extract_features2(training_data) 
+	featurised_sentences_testing_dict = extract_features2(testing_data)
+
+	# Train a structured perceptron to learn the weights
+	feature_weights = train(featurised_sentences_dict)
+
+
+
 
