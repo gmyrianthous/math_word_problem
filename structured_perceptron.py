@@ -6,6 +6,7 @@ import nltk
 import random 
 import itertools
 import sys 
+from random import shuffle
 
 # Returns: list of dicts
 def read_data_json(filename):
@@ -336,6 +337,7 @@ def extract_features2(data):
 			id_features_dict[counter]['num3'] = num3 # third number that appears in the text
 			id_features_dict[counter]['alignment'] = alignment
 			id_features_dict[counter]['nums_with_verbs_sorted'] = nums_with_verbs_sorted
+			id_features_dict[counter]['solution'] = math_problem['lSolutions']
 
 		counter += 1
 
@@ -352,11 +354,10 @@ def initialise_weights(featurised_data):
 	return weights
 
 # Function for shuffling an OrderedDict
-def shuffle(data):
+def shuffle_data(data):
     # Shuffle the keys
     keys = list(data.keys())
     # Fix the random seed so that results are reproducible. 
-    random.seed(26)
     random.shuffle(keys)
 
     # Write the shuffled keys in another dictionary.
@@ -420,14 +421,14 @@ def extract_combination_features(problem, combination):
 			print("ERROR: Failed to extract number_parameter feature for combination!")
 
 
-	print(combination)
+	#print(combination)
 	#print(alignment)
-	print(numbers)
-	print("Num1: " + str(num1) + ", Num2: " + str(num2) + ", Num3: " + str(num3))
+	#print(numbers)
+	#print("Num1: " + str(num1) + ", Num2: " + str(num2) + ", Num3: " + str(num3))
 
 	# Feature 2: parameter1_verb_parameter2_verb->op#_'op' (e.g. a_had_b_had->op1_+)
 	nums_with_verbs = problem['nums_with_verbs_sorted']
-	print(nums_with_verbs)
+	#print(nums_with_verbs)
 
 	# Sort nums_with_verbs according to the new template. 
 	nums_with_verbs_sorted = []
@@ -437,7 +438,7 @@ def extract_combination_features(problem, combination):
 		for j in range(0, len(nums_with_verbs)):
 			if numbers[i] == int(nums_with_verbs[j][0]):
 				nums_with_verbs_sorted.append(nums_with_verbs[j])
-	print(nums_with_verbs_sorted)
+	#print(nums_with_verbs_sorted)
 
 	# Construct features
 	# Extract the signs/operations from the equation
@@ -460,17 +461,25 @@ def extract_combination_features(problem, combination):
 	# b op c
 	features["b_"+nums_with_verbs_sorted[0][1]+"_c_"+nums_with_verbs_sorted[1][1]+"->op2_"+operations[1]] += 1	
 
-	print("Features: " + str(features))
-	print("")
+	#print("Features: " + str(features))
+	#print("")
 
 	return features
 
 
 
+# Function to compute the dot product between a combination's feature list and the weight vector
+def dot_product(features_dict, weights):
+	dot = 0
+	for feature in features_dict.keys():
+		if feature in weights.keys():
+			dot += features_dict[feature] * weights[feature]
+	return dot
+
+
 # Function to compute argmax operation. 
 # TEMPLATE: (a op b) op c
 def argmax(problem, weights):
-	print(problem)
 	question = problem['question']
 	features = problem['features']
 	numbers = problem['numbers'] # sequence: a, b, c
@@ -479,6 +488,11 @@ def argmax(problem, weights):
 
 	# Compute the possible combinations for the problem. 
 	combinations = get_equation_combinations()
+
+
+	max_dot = None 
+	max_features = None
+	max_combination = None
 
 	# Construct each combination and compute the features and score for each. 
 	for combination in combinations:
@@ -492,44 +506,98 @@ def argmax(problem, weights):
 				combination_filled_in += str(numbers[2])
 			else:
 				combination_filled_in += char
-		#print(combination_filled_in)
 
 		# Extract features for the combination. 
 		combination_features = extract_combination_features(problem, combination_filled_in)
 
+		# Compute the score of the combination
+		dot = dot_product(combination_features, weights)
 
+		if (max_dot is None or dot > max_dot):
+			max_dot = dot
+			max_features = combination_features
+			max_combination = combination_filled_in
 
-
-
-
-
-
-
+	return max_dot, max_features, max_combination
 
 
 
 # Training a structured perceptron to learn the features' weights. 
-def train(data, iterations=1):
+def train(data, iterations=10):
 	# Initialize weights 
 	weights = initialise_weights(data)
 
 	for i in range(iterations):
 		# Shuffle data
-		#data = shuffle(data)
+		data = shuffle_data(data)
 		counter = 0
 		for problem in data:
 			if counter >= 0:
 				features = data[problem]['features']
 
 				# Predict the sequence of numbers and operations according to the template. 
-				y_hat = argmax(data[problem], weights)
+				y_hat_dot, y_hat_features, y_hat_combination = argmax(data[problem], weights)
+
+
+				#print(y_hat_features)
+				correct_features = []
+				wrong_features = []
+
+				# Compare the prediction with the true tag sequence
+				for feature in features:
+					if feature not in y_hat_features:
+						correct_features.append(feature)
+
+				for feature in y_hat_features:
+					if feature not in features.keys():
+						wrong_features.append(feature)
+
+				# Update weights according to the comparison above
+				for feature in correct_features:
+					if feature in weights.keys():
+						weights[feature] += 1
+
+				for feature in wrong_features:
+					if feature in weights.keys():
+						weights[feature] -= 1
 
 			counter += 1
 
+	return weights
+
+# Function used for testing the structured perceptron
+def test(data, weights):
+	correct_predictions = 0
+	counter=0
+	for problem in data:
+		features = data[problem]['features']
+		solution = data[problem]['solution']
+	
+		y_hat_dot, y_hat_features, y_hat_combination = argmax(data[problem], weights)
+
+		print(data[problem]['question'])
+		print(solution)
+		print(y_hat_combination)
+
+		# Execute the predicted equation
+		prediction = eval(y_hat_combination)
+
+		if int(prediction) == int(solution[0]):
+			correct_predictions += 1
+
+	print("Correct predictions: " + str(correct_predictions))
+	print("Accuracy: " + str(correct_predictions / len(data) * 100))
+
+
+
+
 
 if __name__ == "__main__":
+	random.seed(26)
+
 	# Read the data
 	data = read_data_json("data/MultiArith.json")
+	shuffle(data)	
 	#pprint(data)
 
 	# Report dataset stats
@@ -545,6 +613,7 @@ if __name__ == "__main__":
 	# Train a structured perceptron to learn the weights
 	feature_weights = train(featurised_sentences_dict)
 
+	test(featurised_sentences_testing_dict, feature_weights)
 
 
 
