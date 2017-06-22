@@ -7,6 +7,11 @@ import random
 import itertools
 import sys 
 from random import shuffle
+from tqdm import tqdm
+from nltk.stem.wordnet import WordNetLemmatizer
+
+# Word-net lemmatizer to lemmatize words
+lemmatizer = WordNetLemmatizer()
 
 # Returns: list of dicts
 def read_data_json(filename):
@@ -138,6 +143,12 @@ def extract_features(data):
 
 		counter+=1
 
+# WordNetLemmatizer requires a pos tag as argument. By default it is 'n' (standing for noun). v for verb
+def lemmatize_word(word):
+	return lemmatizer.lemmatize(word,'v')
+
+
+
 def extract_features2(data):
 	id_features_dict = OrderedDict() # sentence id (key) : list(features)
 	counter = 0
@@ -179,10 +190,6 @@ def extract_features2(data):
 					features["num"+str(i+1)+"_c"] += 1
 
 			# Compute the numbers as appear in the text (not in template)
-			num1 = -1
-			num2 = -1
-			num3 = -1
-
 			if alignment[0] < alignment[1] < alignment[2]: # num1, num2, num3
 				num1 = numbers[0]
 				num2 = numbers[1]
@@ -209,9 +216,6 @@ def extract_features2(data):
 				num3 = numbers[0]
 
 			# Feature 2: parameter1_verb_parameter2_verb->op#_'op' (e.g. a_had_b_had->op1_+)
-
-
-
 			# Get the sentences of each problem/question
 			sentences = re.split(r'[.!?]+', question)
 			sentences.pop(len(sentences)-1) # delete the last entry in the list which is always empty
@@ -231,13 +235,6 @@ def extract_features2(data):
 			for i in range(0, len(sentences)):
 				if sentence_contains_numbers[i]:
 					sentences_final.append(sentences[i])
-
-			#sentences_removed = 0
-			#for i in range(0, len(sentences)):
-			#	if not sentence_contains_numbers[i-sentences_removed]:
-			#		sentences.pop(i-sentences_removed)
-					#sentences_removed+=1
-			#print(sentences_final)
 
 			# We need to compute the PoS tags in order to get the verbs which are related to the parameters a, b and c.
 			nums_with_verbs = []
@@ -304,6 +301,17 @@ def extract_features2(data):
 
 			nums_with_verbs_sorted = nums_with_verbs_sorted[::-1]	# index=0 -> a, index=1 -> b, index=2 -> c	
 			#print("Nums with verbs - sorted: " + str(nums_with_verbs_sorted))
+
+			# Lemmatize verbs
+			#nums_with_verbs_final = []
+			#for num_verb in nums_with_verbs_sorted:
+			#	l = list(num_verb)
+			#	l[1] = lemmatize_word(l[1])
+			#	t = tuple(l)
+			#	nums_with_verbs_final.append(t)
+
+
+
 
 			# Extract the signs/operations from the equation
 			# form left to right
@@ -523,11 +531,12 @@ def argmax(problem, weights):
 
 
 # Training a structured perceptron to learn the features' weights. 
-def train(data, iterations=10):
+def train(data, iterations=8):
 	# Initialize weights 
 	weights = initialise_weights(data)
 
-	for i in range(iterations):
+	print("Training structured perceptron.. ")
+	for i in tqdm(range(iterations)):
 		# Shuffle data
 		data = shuffle_data(data)
 		counter = 0
@@ -563,33 +572,46 @@ def train(data, iterations=10):
 
 			counter += 1
 
+	# Averaging TODO-NOTE: Currently no effect on the accuracy of the model
+	for weight in weights.keys():
+		weights[weight] = weights[weight] / iterations
+
 	return weights
 
 # Function used for testing the structured perceptron
 def test(data, weights):
 	correct_predictions = 0
 	counter=0
+
+	error_analysis = []
+
 	for problem in data:
 		features = data[problem]['features']
 		solution = data[problem]['solution']
 	
 		y_hat_dot, y_hat_features, y_hat_combination = argmax(data[problem], weights)
 
-		print(data[problem]['question'])
-		print(solution)
-		print(y_hat_combination)
+		#print(data[problem]['question'])
+		#print(solution)
+		#print(y_hat_combination)
 
 		# Execute the predicted equation
 		prediction = eval(y_hat_combination)
 
 		if int(prediction) == int(solution[0]):
 			correct_predictions += 1
+		else: 
+			error_analysis.append(data[problem]['question'] + " Solution: " + str(data[problem]['equation']))
+
 
 	print("Correct predictions: " + str(correct_predictions))
 	print("Accuracy: " + str(correct_predictions / len(data) * 100))
 
+	#print("========================")
+	#print("Misclassified problems:")
 
-
+	#for prob in error_analysis:
+	#	print(prob+"\n")
 
 
 if __name__ == "__main__":
@@ -603,7 +625,7 @@ if __name__ == "__main__":
 	# Report dataset stats
 	report_dataset_stats(data)
 
-	# Split the data into testing and training sents
+	# Split the data into testing and training sets
 	training_data, testing_data = cross_validation(data)
 
 	# Extract features of training and testing data points
