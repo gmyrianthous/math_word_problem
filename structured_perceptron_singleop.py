@@ -390,7 +390,7 @@ def argmax(problem, weights):
 
 
 # Training a structured perceptron to learn the features' weights. 
-def train(data, iterations=8):
+def train(data, iterations=9):
 	# Initialize weights 
 	weights = initialise_weights(data)
 
@@ -467,10 +467,10 @@ def test(data, weights):
 	print("Accuracy: " + str(correct_predictions / len(data) * 100))
 
 	#print("========================")
-	#print("Misclassified problems:")
+	print("Misclassified problems:")
 
-	#for prob in error_analysis:
-	#	print(prob+"\n")
+	for prob in error_analysis:
+		print(prob+"\n")
 
 if __name__ == "__main__":
 	random.seed(26)
