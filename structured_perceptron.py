@@ -156,13 +156,16 @@ def extract_features2(data):
 	removed_instances = []
 
 	for math_problem in data:
-		if counter >= 0 and counter not in removed_instances:
+		if counter >= 0 and counter not in removed_instances: 
 			question = math_problem['sQuestion']
 			alignment = math_problem['lAlignments']
 			equation = str(math_problem['lEquations'][0])
 			index = math_problem['iIndex']
 			features = Counter()
 
+			#print(question)
+			#print(alignment)
+			#print(equation)
 			# Get the numbers pointed by alignments.
 			numbers = []  
 			for index in alignment:
@@ -315,6 +318,7 @@ def extract_features2(data):
 
 
 
+
 			# Extract the signs/operations from the equation
 			# form left to right
 			operations = []
@@ -333,7 +337,81 @@ def extract_features2(data):
 			# a op b
 			features["a_"+nums_with_verbs_sorted[0][1]+"_b_"+nums_with_verbs_sorted[1][1]+"->op1_"+operations[0]] += 1
 			# b op c
-			features["b_"+nums_with_verbs_sorted[0][1]+"_c_"+nums_with_verbs_sorted[1][1]+"->op2_"+operations[1]] += 1
+			features["b_"+nums_with_verbs_sorted[1][1]+"_c_"+nums_with_verbs_sorted[2][1]+"->op2_"+operations[1]] += 1
+
+
+			# Feature 3: Words between parameters + operation (e.g. a_and_b->op1_+, b_ate_c->op2_- etc.)
+
+
+			starting_index1 = alignment[0]
+			ending_index1 = alignment[1]
+
+			words_between_a_b = question[starting_index1:ending_index1]
+			words_between = words_between_a_b.split(" ")
+			for i in range(1, len(words_between)-1):
+				features["a_"+words_between[i]+"_b->op1_"+operations[0]] += 1
+				#print("a_"+words_between[i]+"_b->op1_"+operations[0])
+
+
+			starting_index2 = alignment[1]
+			ending_index2 = alignment[2]
+
+			words_between_b_c = question[starting_index2:ending_index2]
+			words_between = words_between_b_c.split(" ")
+
+			for i in range(1, len(words_between)-1):
+				features["b_"+words_between[i]+"_c->op2_"+operations[1]] += 1
+				#print("b_"+words_between[i]+"_c->op2_"+operations[1])
+
+
+
+			# Feature 4: each_parameter->opn_
+			# Word 'each' is a highly indicative feature especially for mult/div. 
+			each_features = []
+			for sentence in sentences_final:
+				if ' each' in sentence.lower(): 
+					num_found = False
+					num_distance = None
+					index_each = sentence.lower().index('each')
+
+					index_a = 1000
+					index_b = 1000
+					index_c = 1000 
+
+					if str(numbers[0]) in sentence:
+						index_a = sentence.index(str(numbers[0]))
+
+					if str(numbers[1]) in sentence:
+						index_b = sentence.index(str(numbers[1]))
+
+					if str(numbers[2]) in sentence:
+						index_c = sentence.index(str(numbers[2]))
+
+					diff_a = abs(index_each - index_a)
+					diff_b = abs(index_each - index_b)
+					diff_c = abs(index_each - index_c)
+
+
+
+					if diff_a <= diff_b and diff_a <= diff_c:
+						features["a_each->op1_"+operations[0]]
+						features["a_each->op2_"+operations[1]]
+						each_features.append("a_each->op1_")
+						each_features.append("a_each->op2_")
+					elif diff_b <= diff_a and diff_b <= diff_c:
+						features["b_each->op1_"+operations[0]]
+						features["b_each->op2_"+operations[1]]
+						each_features.append("b_each->op1_")
+						each_features.append("b_each->op2_")
+					elif diff_c <= diff_a and diff_c <= diff_b:
+						features["c_each->op1_"+operations[0]]
+						features["c_each->op1_"+operations[1]]
+						each_features.append("c_each->op1_")
+						each_features.append("c_each->op2_")
+					else:
+						print("Failed to extract 'each' features.")
+
+
 
 			id_features_dict[counter] = features
 
@@ -347,6 +425,9 @@ def extract_features2(data):
 			id_features_dict[counter]['num3'] = num3 # third number that appears in the text
 			id_features_dict[counter]['alignment'] = alignment
 			id_features_dict[counter]['nums_with_verbs_sorted'] = nums_with_verbs_sorted
+			id_features_dict[counter]['words_between_a_b'] = words_between_a_b
+			id_features_dict[counter]['words_between_b_c'] = words_between_b_c
+			id_features_dict[counter]['each_features'] = each_features
 			id_features_dict[counter]['solution'] = math_problem['lSolutions']
 
 		counter += 1
@@ -469,10 +550,27 @@ def extract_combination_features(problem, combination):
 	# a op b
 	features["a_"+nums_with_verbs_sorted[0][1]+"_b_"+nums_with_verbs_sorted[1][1]+"->op1_"+operations[0]] += 1
 	# b op c
-	features["b_"+nums_with_verbs_sorted[0][1]+"_c_"+nums_with_verbs_sorted[1][1]+"->op2_"+operations[1]] += 1	
+	features["b_"+nums_with_verbs_sorted[1][1]+"_c_"+nums_with_verbs_sorted[2][1]+"->op2_"+operations[1]] += 1	
 
-	#print("Features: " + str(features))
-	#print("")
+	# Feature 3: Words between
+	words_between_a_b = problem['words_between_a_b']
+	words_between_b_c = problem['words_between_b_c']
+
+	words_between = words_between_a_b.split(" ")
+	for i in range(1, len(words_between)-1):
+		features["a_"+words_between[i]+"_b->op1_"+operations[0]] += 1
+
+	words_between = words_between_b_c.split(" ")
+	for i in range(1, len(words_between)-1):
+		features["b_"+words_between[i]+"_c->op2_"+operations[1]] += 1
+
+
+	# Feature 4: 'Each'
+	each_features = problem['each_features']
+	if len(each_features) > 0:
+		features[each_features[0]+operations[0]]
+		features[each_features[1]+operations[1]]
+
 
 	return features
 
@@ -520,13 +618,32 @@ def argmax(problem, weights):
 		# Extract features for the combination. 
 		combination_features = extract_combination_features(problem, combination_filled_in)
 
-		# Compute the score of the combination
-		dot = dot_product(combination_features, weights)
+		# Constraint 1: if the question asks for 'how many' then we need to provide an integer solution
+		if 'how many' in question.lower():
+			if isinstance(eval(combination_filled_in), int) and eval(combination_filled_in) >= 0:
+				# Compute the score of the combination
+				dot = dot_product(combination_features, weights)
 
-		if (max_dot is None or dot > max_dot):
-			max_dot = dot
-			max_features = combination_features
-			max_combination = combination_filled_in
+				if (max_dot is None or dot > max_dot):
+					max_dot = dot
+					max_features = combination_features
+					max_combination = combination_filled_in
+		elif 'how much' in question.lower():
+			if eval(combination_filled_in) >= 0:
+				# Compute the score of the combination
+				dot = dot_product(combination_features, weights)
+
+				if (max_dot is None or dot > max_dot):
+					max_dot = dot
+					max_features = combination_features
+					max_combination = combination_filled_in				
+		else: 
+			dot = dot_product(combination_features, weights)
+
+			if (max_dot is None or dot > max_dot):
+				max_dot = dot
+				max_features = combination_features
+				max_combination = combination_filled_in	
 
 	return max_dot, max_features, max_combination
 
@@ -549,8 +666,6 @@ def train(data, iterations=8):
 				# Predict the sequence of numbers and operations according to the template. 
 				y_hat_dot, y_hat_features, y_hat_combination = argmax(data[problem], weights)
 
-
-				#print(y_hat_features)
 				correct_features = []
 				wrong_features = []
 
@@ -643,8 +758,8 @@ if __name__ == "__main__":
 
 	# list of 6 tuples(training, testing)
 	k_folds = k_fold_cross_validation(data)
-	training_data = k_folds[0][0]
-	testing_data = k_folds[0][1]
+	training_data = k_folds[5][0]
+	testing_data = k_folds[5][1]
 
 	#shuffle(training_data)
 	#shuffle(testing_data)	
