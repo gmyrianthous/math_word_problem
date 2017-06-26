@@ -234,7 +234,9 @@ def extract_features2(data):
 			sentences_final = []
 			for i in range(0, len(sentences)):
 				if sentence_contains_numbers[i]:
-					sentences_final.append(sentences[i])
+					sentence = sentences[i]
+					sentence = re.sub('[^a-zA-Z0-9 \n\.]', '', sentence) # deal with dollar sign issue
+					sentences_final.append(sentence)
 
 			# We need to compute the PoS tags in order to get the verbs which are related to the parameters a, b and c.
 			nums_with_verbs = []
@@ -614,19 +616,45 @@ def test(data, weights):
 	#	print(prob+"\n")
 
 
+# 100 addition followed by subtraction
+# 100 subtraction followed by addition
+# 100 addition and multiplication
+# 100 addition and division
+# 100 subtraction and multiplication
+# 100 subtraction and division.
+def k_fold_cross_validation(data):
+	# tuple(training, testing)
+	k_folds = []
+	k_folds.append((data[100:], data[:100]))
+	k_folds.append((data[:100] + data[200:], data[100:200]))
+	k_folds.append((data[:200] + data[300:], data[200:300]))
+	k_folds.append((data[:300] + data[400:], data[300:400]))
+	k_folds.append((data[:400] + data[500:], data[400:500]))
+	k_folds.append((data[:500], data[500:]))
+
+	return k_folds
+
+
 if __name__ == "__main__":
 	random.seed(26)
 
 	# Read the data
 	data = read_data_json("data/MultiArith.json")
-	shuffle(data)	
+
+	# list of 6 tuples(training, testing)
+	k_folds = k_fold_cross_validation(data)
+	training_data = k_folds[0][0]
+	testing_data = k_folds[0][1]
+
+	#shuffle(training_data)
+	#shuffle(testing_data)	
 	#pprint(data)
 
 	# Report dataset stats
 	report_dataset_stats(data)
 
 	# Split the data into testing and training sets
-	training_data, testing_data = cross_validation(data)
+	#training_data, testing_data = cross_validation(data)
 
 	# Extract features of training and testing data points
 	featurised_sentences_dict = extract_features2(training_data) 
