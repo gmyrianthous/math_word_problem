@@ -283,13 +283,6 @@ def argmax(problem, weights):
 			max_features = combination_features
 			max_combination = combination_filled_in
 
-		# Constraints
-		#try:
-		#	result = eval(combination_filled_in)
-		#except ZeroDivisionError:
-		#	result = -100
-
-		#sys.exit(1)
 	return max_dot, max_features, max_combination
 
 # Train the strucutred perceptron and learn the weights. 
