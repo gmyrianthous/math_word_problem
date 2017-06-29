@@ -394,5 +394,5 @@ if __name__ == "__main__":
 		accuracy_per_fold.append(curr_accuracy)
 		accuracy += curr_accuracy 
 
-	print("Testing accuracy: " + str(accuracy / 6))
+	print("Testing accuracy: " + str(accuracy / len(accuracy_per_fold)))
 	print("Accuracy per fold: " + str(accuracy_per_fold))
