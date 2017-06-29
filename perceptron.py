@@ -142,6 +142,14 @@ def convert_template(equation, alignment, numbers, operations):
 
 	return equation_new, alignment_new, numbers_new
 
+# Function to compute the dot product between a combination's feature list and the weight vector
+def dot_product(features_dict, weights):
+	dot = 0
+	for feature in features_dict.keys():
+		if feature in weights.keys():
+			dot += features_dict[feature] * weights[feature]
+	return dot
+
 # Extract features for a given set of data points.
 def extract_features(data):
 	id_features_dict = OrderedDict()
@@ -154,7 +162,7 @@ def extract_features(data):
 		question = math_problem['sQuestion']
 		alignment = math_problem['lAlignments']
 		equation = math_problem['lEquations'][0]
-		solution = math_problem['lSolutions']
+		solution = math_problem['lSolutions'][0]
 
 		# Extract the numbers (as appear in the template)
 		numbers = get_numbers_in_template(alignment, question)
@@ -211,9 +219,37 @@ def get_equation_combinations():
 
 	return combinations
 
+# Extract combination features
+def extract_combination_features(problem, combination):
+	features = Counter()
+
+	alignment = problem['alignment']
+	numbers = problem['numbers']
+	question = problem['question']
+
+	# Feature 1: words between two numbers along with the operation. e.g. and_+, gave_- etc. 
+	# Get the operations of the combination
+	operations = get_operations_in_template(combination)
+
+	## Words between the first two parameters a and b
+	words_between = get_words_between(alignment[0], alignment[1], question)
+
+	for word in words_between:
+		features[word.lower()+"_"+operations[0]] += 1
+
+	## Words between the remaining two parameters
+	words_between = get_words_between(alignment[1], alignment[2], question)
+
+	for word in words_between:
+		features[word.lower()+"_"+operations[1]] += 1
+
+	return features	
+
+
 # Get the most promising combination 
 def argmax(problem, weights):
 	equation = problem['equation']
+	numbers = problem['numbers']
 
 	# Get the possible combinations
 	combinations = get_equation_combinations()
@@ -240,28 +276,92 @@ def argmax(problem, weights):
 
 		# Extract features for the current combination
 		combination_features = extract_combination_features(problem, combination_filled_in)
-	
 
+		dot = dot_product(combination_features, weights)
+		if (max_dot is None or dot > max_dot):
+			max_dot = dot
+			max_features = combination_features
+			max_combination = combination_filled_in
 
-	sys.exit(1)
+		# Constraints
+		#try:
+		#	result = eval(combination_filled_in)
+		#except ZeroDivisionError:
+		#	result = -100
+
+		#sys.exit(1)
+	return max_dot, max_features, max_combination
 
 # Train the strucutred perceptron and learn the weights. 
 # Multiple passes, shuffline and averaging can improve the performance of our classifier. 
-def train(data, iterations=8):
+def train(data, iterations=10):
 	# Initialise the weights
 	weights = initialise_weights(data)
 
 	# Multiple passes
 	for i in tqdm(range(iterations)):
+		training_accuracy = 0
 		# Shuffling
 		data = shuffle_data(data)
 		for problem in data:
+
+			# Correct features of the problem. 
 			features = data[problem]['features']
 
 			# Predict the sequence of numbers and operations according to the template. 
 			y_hat_dot, y_hat_features, y_hat_combination = argmax(data[problem], weights)
 
+			# Extract the correct/wrong features
+			features_for_addition = []
+			features_for_subtraction = []
 
+			for feature in features:
+				if feature not in y_hat_features.keys():
+					features_for_addition.append(feature)
+
+			for feature in y_hat_features.keys():
+				if feature not in features.keys() or feature not in weights.keys():
+					features_for_subtraction.append(feature)
+
+			# Update the weights according to the prediction
+			for feature in features_for_addition:
+				weights[feature] += 1
+
+			for feature in features_for_subtraction:
+				weights[feature] -= 1
+			
+			# Execute the predicted equation
+			prediction = eval(y_hat_combination)
+			solution = data[problem]['solution']
+
+			if solution == prediction:
+				training_accuracy += 1
+		#print("Training accuracy: " + str(training_accuracy / len(data) * 100))
+
+	return weights
+
+# Testing phase of structured perceptron
+def test(data, weights):
+	correct_counter = 0
+
+	for problem in data:
+		features = data[problem]['features']
+		solution = data[problem]['solution']
+
+		# Predict the sequence of numbers and operations according to the template. 
+		y_hat_dot, y_hat_features, y_hat_combination = argmax(data[problem], weights)	
+
+		# Execute the predicted equation
+		prediction = eval(y_hat_combination)
+
+
+		if solution == prediction:
+			correct_counter += 1
+
+	accuracy = correct_counter / len(data) * 100
+	#print ("Testing accuracy: " + str(accuracy))
+
+	return accuracy
 
 if __name__ == "__main__":
 	random.seed(26)
@@ -275,18 +375,24 @@ if __name__ == "__main__":
 	# Perform 6-fold cross validation -> list of 6 tuples(training, testing)
 	six_folds = k_fold_cross_validation(data)
 
-	training_data = six_folds[1][0]
-	testing_data = six_folds[1][1]
+	accuracy_per_fold = []
+	accuracy = 0 
+	for i in range(0, len(six_folds)):
+		print("Fold "+ str(i+1) + "/"+str(len(six_folds)))
+		training_data = six_folds[i][0]
+		testing_data = six_folds[i][1]
 
-	# Extract features for training and testing examples
-	training_features = extract_features(training_data)
-	testing_features = extract_features(testing_data)
+		# Extract features for training and testing examples
+		training_features = extract_features(training_data)
+		testing_features = extract_features(testing_data)
 
-	# Train the structured perceptron in order to learn the weights
-	feature_weights = train(training_features)
+		# Train the structured perceptron in order to learn the weights
+		feature_weights = train(training_features)
 
+		# Test the perceptron
+		curr_accuracy = test(testing_features, feature_weights)
+		accuracy_per_fold.append(curr_accuracy)
+		accuracy += curr_accuracy 
 
-
-
-
-
+	print("Testing accuracy: " + str(accuracy / 6))
+	print("Accuracy per fold: " + str(accuracy_per_fold))
