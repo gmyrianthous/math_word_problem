@@ -9,6 +9,9 @@ import sys
 from random import shuffle
 from tqdm import tqdm
 from nltk.stem.wordnet import WordNetLemmatizer
+from nltk.tag.perceptron import PerceptronTagger
+
+
 
 # Returns: list of dicts
 def read_data_json(filename):
@@ -106,7 +109,37 @@ def get_words_between(start, end, question):
 	words_between.pop(0) # remove the first instance which is the first parameter
 	words_between.pop(len(words_between)-1) # remove the last instance which is always empty
 
-	return words_between
+
+	#TODO
+
+	#processed_words = []
+	#for word in words_between:
+		# Treat numbers between two numbers
+		# NUM is a general placeholder
+		#if word.isdigit():
+		#	processed_words.append("NUM")
+		#else:
+			# Remove special characters
+	#	processed_word = re.sub('[^A-Za-z0-9]+', '', word)
+	#	processed_words.append(processed_word)
+
+
+	# Discard nouns
+	# NOTE: nltk.pos_tag accepts a LIST of tokens
+	final_words = []
+	#pos_tags = pos_tagger.tag(processed_words)
+	#for pos_tag in pos_tags:
+	#	if not 'NN' in pos_tag[1]:
+	#		final_words.append(pos_tag[0])
+	#for word in processed_words:
+	#	word_in_list = []
+	#	word_in_list.append(word)
+
+	#	pos_tag = pos_tagger.tag(word_in_list)[0][1]
+	#	if not 'NN' in pos_tag:
+	#		final_words.append(word)
+
+	return final_words
 
 # Initialise the feature weights
 def initialise_weights(data):
@@ -140,7 +173,7 @@ def convert_template(equation, alignment, numbers, operations):
 	operations_new = operations[::-1]
 	equation_new = "X=(("+str(float(numbers_new[0]))+operations_new[0]+str(float(numbers_new[1]))+")"+operations_new[1]+str(float(numbers_new[2]))+")"
 
-	return equation_new, alignment_new, numbers_new
+	return equation_new, alignment_new, numbers_new, operations_new
 
 # Function to compute the dot product between a combination's feature list and the weight vector
 def dot_product(features_dict, weights):
@@ -174,22 +207,44 @@ def extract_features(data):
 		# Equations that follow the a op (b op c) should be transformed into (a op b) op c
 		# The alignment and the extraxted numbers should also be modified in order to match the new template.
 		if "))" in equation:
-			equation, alignment, numbers = convert_template(equation, alignment, numbers, operations)
+			#print("modified")
+			equation, alignment, numbers, operations = convert_template(equation, alignment, numbers, operations)
 
 
 		# Feature 1: words between two numbers along with the operation. e.g. and_+, gave_- etc. 
 
 		## Words between the first two parameters a and b
-		words_between = get_words_between(alignment[0], alignment[1], question)
+		#words_between = get_words_between(alignment[0], alignment[1], question)
 
-		for word in words_between:
-			features[word.lower()+"_"+operations[0]] += 1
+		#for word in words_between:
+		#	features[word.lower()+"_"+operations[0]] += 1
 
 		## Words between the remaining two parameters
-		words_between = get_words_between(alignment[1], alignment[2], question)
+		#words_between = get_words_between(alignment[1], alignment[2], question)
 
-		for word in words_between:
-			features[word.lower()+"_"+operations[1]] += 1
+		#for word in words_between:
+		#	features[word.lower()+"_"+operations[1]] += 1
+
+
+		# Feature 2: previousWord:word_operation_-
+		# Get previous word
+		previous_words = []
+		for i in range(0, len(alignment)):
+			index = alignment[i]-2
+			reversed_word = ""
+			curr_char = question[index]
+			while curr_char != " ":
+				reversed_word += curr_char
+				index -= 1
+				curr_char = question[index] 
+
+			previous_words.append(reversed_word[::-1])
+
+		# For the first number that appears in the template the sign is always positive
+		features['previousWord:'+str(previous_words[0])+"_operation:+"] += 1
+		features['previousWord:'+str(previous_words[1])+"_operation:"+operations[0]] += 1
+		features['previousWord:'+str(previous_words[2])+"_operation:"+operations[1]] += 1
+
 
 		# Add the features into the dictionary
 		id_features_dict[index] = {}
@@ -201,6 +256,8 @@ def extract_features(data):
 		id_features_dict[index]['equation'] = equation
 		id_features_dict[index]['solution'] = solution
 		id_features_dict[index]['numbers'] = numbers
+		id_features_dict[index]['operations'] = operations
+		id_features_dict[index]['previousWords'] = previous_words
 
 
 	return id_features_dict
@@ -231,17 +288,35 @@ def extract_combination_features(problem, combination):
 	# Get the operations of the combination
 	operations = get_operations_in_template(combination)
 
-	## Words between the first two parameters a and b
-	words_between = get_words_between(alignment[0], alignment[1], question)
 
-	for word in words_between:
-		features[word.lower()+"_"+operations[0]] += 1
+	previous_words = problem['previousWords']
+
+	# For the first number that appears in the template the sign is always positive
+	features['previousWord:'+str(previous_words[0])+"_operation:+"] += 1
+	features['previousWord:'+str(previous_words[1])+"_operation:"+operations[0]] += 1
+	features['previousWord:'+str(previous_words[2])+"_operation:"+operations[1]] += 1
+
+	#print(question)
+	#print(combination)
+	#print(operations)
+	#print(features)
+	#print(previous_words)
+	#print("")
+
+	#sys.exit(1)
+
+
+	## Words between the first two parameters a and b
+	#words_between = get_words_between(alignment[0], alignment[1], question)
+
+	#for word in words_between:
+	#	features[word.lower()+"_"+operations[0]] += 1
 
 	## Words between the remaining two parameters
-	words_between = get_words_between(alignment[1], alignment[2], question)
+	#words_between = get_words_between(alignment[1], alignment[2], question)
 
-	for word in words_between:
-		features[word.lower()+"_"+operations[1]] += 1
+	#for word in words_between:
+	#	features[word.lower()+"_"+operations[1]] += 1
 
 	return features	
 
@@ -250,6 +325,7 @@ def extract_combination_features(problem, combination):
 def argmax(problem, weights):
 	equation = problem['equation']
 	numbers = problem['numbers']
+	question = problem['question']
 
 	# Get the possible combinations
 	combinations = get_equation_combinations()
@@ -277,6 +353,22 @@ def argmax(problem, weights):
 		# Extract features for the current combination
 		combination_features = extract_combination_features(problem, combination_filled_in)
 
+		combination_result = eval(combination_filled_in)
+		#if 'how many' in question.lower():
+		#	if isinstance(combination_result, int) and combination_result > 0:
+		#		dot = dot_product(combination_features, weights)
+		#		if (max_dot is None or dot > max_dot):
+		#			max_dot = dot
+		#			max_features = combination_features
+		#			max_combination = combination_filled_in
+		#elif 'how much' in question.lower():
+		#	if isinstance(combination_result, float) and combination_result > 0:
+		#		dot = dot_product(combination_features, weights)
+		#		if (max_dot is None or dot > max_dot):
+		#			max_dot = dot
+		#			max_features = combination_features
+		#			max_combination = combination_filled_in
+		#else:
 		dot = dot_product(combination_features, weights)
 		if (max_dot is None or dot > max_dot):
 			max_dot = dot
@@ -340,9 +432,18 @@ def test(data, weights):
 	for problem in data:
 		features = data[problem]['features']
 		solution = data[problem]['solution']
+		question = data[problem]['question']
+		equation = data[problem]['equation']
 
 		# Predict the sequence of numbers and operations according to the template. 
 		y_hat_dot, y_hat_features, y_hat_combination = argmax(data[problem], weights)	
+
+		#print("Question: " + question)
+		#print("Correct features: " + str(features))
+		#print("Predicted features: " + str(y_hat_features))
+		#print("Correct solution: " + str(equation))
+		#print("Predicted solution: " + y_hat_combination)
+		#print("")
 
 		# Execute the predicted equation
 		prediction = eval(y_hat_combination)
@@ -357,6 +458,10 @@ def test(data, weights):
 	return accuracy
 
 if __name__ == "__main__":
+	# PoS tagger
+	pos_tagger = PerceptronTagger()
+	
+	# Fix random seed so that results are reproducible. 
 	random.seed(26)
 
 	# Read the data
@@ -381,6 +486,10 @@ if __name__ == "__main__":
 
 		# Train the structured perceptron in order to learn the weights
 		feature_weights = train(training_features)
+
+	#	print("")
+	#	print(feature_weights)
+	#	print("")
 
 		# Test the perceptron
 		curr_accuracy = test(testing_features, feature_weights)
