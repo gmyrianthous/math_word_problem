@@ -207,7 +207,6 @@ def extract_features(data):
 		# Equations that follow the a op (b op c) should be transformed into (a op b) op c
 		# The alignment and the extraxted numbers should also be modified in order to match the new template.
 		if "))" in equation:
-			#print("modified")
 			equation, alignment, numbers, operations = convert_template(equation, alignment, numbers, operations)
 
 
@@ -246,6 +245,25 @@ def extract_features(data):
 		features['previousWord:'+str(previous_words[2])+"_operation:"+operations[1]] += 1
 
 
+		# Feature 3: nextWord:word_operation_-
+		# Get next word
+		next_words = []
+		for i in range(0, len(alignment)):
+			index = alignment[i] + len(str(numbers[i])) + 1
+			word = ""
+			curr_char = question[index]
+			while curr_char != " ":
+				word += curr_char
+				index += 1
+				curr_char = question[index]
+			next_words.append(re.sub('[^A-Za-z0-9]+', '', word))
+
+		# For the first number that appears in the template the sign is always positive
+		features['nextWord:'+str(next_words[0])+"_operation:+"] += 1
+		features['nextWord:'+str(next_words[1])+"_operation:"+operations[0]] += 1
+		features['nextWord:'+str(next_words[2])+"_operation:"+operations[1]] += 1
+
+
 		# Add the features into the dictionary
 		id_features_dict[index] = {}
 		id_features_dict[index]['features'] = features
@@ -258,7 +276,7 @@ def extract_features(data):
 		id_features_dict[index]['numbers'] = numbers
 		id_features_dict[index]['operations'] = operations
 		id_features_dict[index]['previousWords'] = previous_words
-
+		id_features_dict[index]['nextWords'] = next_words
 
 	return id_features_dict
 
@@ -284,17 +302,25 @@ def extract_combination_features(problem, combination):
 	numbers = problem['numbers']
 	question = problem['question']
 
-	# Feature 1: words between two numbers along with the operation. e.g. and_+, gave_- etc. 
 	# Get the operations of the combination
 	operations = get_operations_in_template(combination)
 
-
+	# Feature 1: previous word for each number
 	previous_words = problem['previousWords']
 
 	# For the first number that appears in the template the sign is always positive
 	features['previousWord:'+str(previous_words[0])+"_operation:+"] += 1
 	features['previousWord:'+str(previous_words[1])+"_operation:"+operations[0]] += 1
 	features['previousWord:'+str(previous_words[2])+"_operation:"+operations[1]] += 1
+
+	# Feature 2: next word for each number
+	next_words = problem['nextWords']
+
+	# For the first number that appears in the template the sign is always positive
+	features['nextWord:'+str(next_words[0])+"_operation:+"] += 1
+	features['nextWord:'+str(next_words[1])+"_operation:"+operations[0]] += 1
+	features['nextWord:'+str(next_words[2])+"_operation:"+operations[1]] += 1
+
 
 	#print(question)
 	#print(combination)
