@@ -96,51 +96,6 @@ def get_operations_in_template(equation):
 			operations.append("/")
 	return operations
 
-# Get the words between two parameters
-# start -> starting index
-# end -> ending index
-def get_words_between(start, end, question):
-	if start > end:
-		tmp = start
-		start = end
-		end = tmp
-
-	words_between = question[start:end].split(" ")
-	words_between.pop(0) # remove the first instance which is the first parameter
-	words_between.pop(len(words_between)-1) # remove the last instance which is always empty
-
-
-	#TODO
-
-	#processed_words = []
-	#for word in words_between:
-		# Treat numbers between two numbers
-		# NUM is a general placeholder
-		#if word.isdigit():
-		#	processed_words.append("NUM")
-		#else:
-			# Remove special characters
-	#	processed_word = re.sub('[^A-Za-z0-9]+', '', word)
-	#	processed_words.append(processed_word)
-
-
-	# Discard nouns
-	# NOTE: nltk.pos_tag accepts a LIST of tokens
-	final_words = []
-	#pos_tags = pos_tagger.tag(processed_words)
-	#for pos_tag in pos_tags:
-	#	if not 'NN' in pos_tag[1]:
-	#		final_words.append(pos_tag[0])
-	#for word in processed_words:
-	#	word_in_list = []
-	#	word_in_list.append(word)
-
-	#	pos_tag = pos_tagger.tag(word_in_list)[0][1]
-	#	if not 'NN' in pos_tag:
-	#		final_words.append(word)
-
-	return final_words
-
 # Initialise the feature weights
 def initialise_weights(data):
 	weights = Counter()
@@ -207,22 +162,8 @@ def extract_features(data):
 		# Equations that follow the a op (b op c) should be transformed into (a op b) op c
 		# The alignment and the extraxted numbers should also be modified in order to match the new template.
 		if "))" in equation:
+			#print("modified")
 			equation, alignment, numbers, operations = convert_template(equation, alignment, numbers, operations)
-
-
-		# Feature 1: words between two numbers along with the operation. e.g. and_+, gave_- etc. 
-
-		## Words between the first two parameters a and b
-		#words_between = get_words_between(alignment[0], alignment[1], question)
-
-		#for word in words_between:
-		#	features[word.lower()+"_"+operations[0]] += 1
-
-		## Words between the remaining two parameters
-		#words_between = get_words_between(alignment[1], alignment[2], question)
-
-		#for word in words_between:
-		#	features[word.lower()+"_"+operations[1]] += 1
 
 
 		# Feature 2: previousWord:word_operation_-
@@ -237,7 +178,7 @@ def extract_features(data):
 				index -= 1
 				curr_char = question[index] 
 
-			previous_words.append(reversed_word[::-1])
+			previous_words.append(re.sub('[^A-Za-z0-9]+', '', reversed_word[::-1]).lower())
 
 		# For the first number that appears in the template the sign is always positive
 		features['previousWord:'+str(previous_words[0])+"_operation:+"] += 1
@@ -256,12 +197,49 @@ def extract_features(data):
 				word += curr_char
 				index += 1
 				curr_char = question[index]
-			next_words.append(re.sub('[^A-Za-z0-9]+', '', word))
+			next_words.append(re.sub('[^A-Za-z0-9]+', '', word).lower())
 
 		# For the first number that appears in the template the sign is always positive
 		features['nextWord:'+str(next_words[0])+"_operation:+"] += 1
 		features['nextWord:'+str(next_words[1])+"_operation:"+operations[0]] += 1
 		features['nextWord:'+str(next_words[2])+"_operation:"+operations[1]] += 1
+
+
+		# Feature 3: word before previous word (previous 2nd word)
+		#previous_words_2 = []
+		#for i in range(0, len(alignment)):
+		#	index = alignment[i]-2-len(previous_words[i])-1
+		#	reversed_word = ""
+		#	curr_char = question[index]
+		#	while curr_char != " ":
+		#		reversed_word += curr_char
+		#		index -= 1
+		#		curr_char = question[index]
+		#	previous_words_2.append(re.sub('[^A-Za-z0-9]+', '', reversed_word[::-1]).lower())
+
+		#features['previousWord2:'+str(previous_words_2[0])+"_operation:+"] += 1
+		#features['previousWord2:'+str(previous_words_2[1])+"_operation:"+operations[0]] += 1
+		#features['previousWord2:'+str(previous_words_2[2])+"_operation:"+operations[1]] += 1		
+
+
+		# Feature 4: next 2 word
+		#next_words_2 = []
+		#for i in range(0, len(alignment)):
+		#	index = alignment[i] + len(str(numbers[i])) + 1
+		#	nextWords = question[index:len(question)].split(" ")
+		#	nextWords.pop(len(nextWords)-1)
+
+		#	if len(nextWords) >= 2:
+		#		next_words_2.append(re.sub('[^A-Za-z0-9]+', '', nextWords[1]).lower())
+		#	else:
+		#		next_words_2.append("NOT_FOUND")
+
+
+
+		# For the first number that appears in the template the sign is always positive
+		#features['nextWord2:'+str(next_words_2[0])+"_operation:+"] += 1
+		#features['nextWord2:'+str(next_words_2[1])+"_operation:"+operations[0]] += 1
+		#features['nextWord2:'+str(next_words_2[2])+"_operation:"+operations[1]] += 1
 
 
 		# Add the features into the dictionary
@@ -277,6 +255,8 @@ def extract_features(data):
 		id_features_dict[index]['operations'] = operations
 		id_features_dict[index]['previousWords'] = previous_words
 		id_features_dict[index]['nextWords'] = next_words
+		#id_features_dict[index]['nextWords2'] = next_words_2
+		#id_features_dict[index]['previousWords2'] = previous_words_2
 
 	return id_features_dict
 
@@ -321,28 +301,21 @@ def extract_combination_features(problem, combination):
 	features['nextWord:'+str(next_words[1])+"_operation:"+operations[0]] += 1
 	features['nextWord:'+str(next_words[2])+"_operation:"+operations[1]] += 1
 
+	# Feature 3: word before previous word (previous 2nd word)
+	#previous_words_2 = problem['previousWords2']
 
-	#print(question)
-	#print(combination)
-	#print(operations)
-	#print(features)
-	#print(previous_words)
-	#print("")
+	#features['previousWord2:'+str(previous_words_2[0])+"_operation:+"] += 1
+	#features['previousWord2:'+str(previous_words_2[1])+"_operation:"+operations[0]] += 1
+	#features['previousWord2:'+str(previous_words_2[2])+"_operation:"+operations[1]] += 1
 
-	#sys.exit(1)
+	# Feature 4: next word for each number
+	#next_words_2 = problem['nextWords2']
 
+	# For the first number that appears in the template the sign is always positive
+	#features['nextWord:'+str(next_words_2[0])+"_operation:+"] += 1
+	#features['nextWord:'+str(next_words_2[1])+"_operation:"+operations[0]] += 1
+	#features['nextWord:'+str(next_words_2[2])+"_operation:"+operations[1]] += 1
 
-	## Words between the first two parameters a and b
-	#words_between = get_words_between(alignment[0], alignment[1], question)
-
-	#for word in words_between:
-	#	features[word.lower()+"_"+operations[0]] += 1
-
-	## Words between the remaining two parameters
-	#words_between = get_words_between(alignment[1], alignment[2], question)
-
-	#for word in words_between:
-	#	features[word.lower()+"_"+operations[1]] += 1
 
 	return features	
 
@@ -405,7 +378,7 @@ def argmax(problem, weights):
 
 # Train the strucutred perceptron and learn the weights. 
 # Multiple passes, shuffline and averaging can improve the performance of our classifier. 
-def train(data, iterations=10):
+def train(data, iterations=9):
 	# Initialise the weights
 	weights = initialise_weights(data)
 
