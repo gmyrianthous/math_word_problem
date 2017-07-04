@@ -208,25 +208,25 @@ def extract_features(data):
 		# Feature 3: previousBigram:one_bigram-operation:+
 		#previous_words_2 = []
 		#for i in range(0, len(alignment)):
-		#	index = alignment[i]-2-len(previous_words[i])-1
+		#	index4 = alignment[i]-2-len(previous_words[i])-1
 		#	reversed_word = ""
-		#	curr_char = question[index]
+		#	curr_char = question[index4]
 		#	while curr_char != " ":
 		#		reversed_word += curr_char
-		#		index -= 1
-		#		curr_char = question[index]
+		#		index4 -= 1
+		#		curr_char = question[index4]
 		#	previous_words_2.append(re.sub('[^A-Za-z0-9]+', '', reversed_word[::-1]).lower())
 
 		#features['previousBigram:'+str(previous_words_2[0])+"_"+previous_words[0]+"-operation:+"] += 1
 		#features['previousBigram:'+str(previous_words_2[1])+"_"+previous_words[1]+"-operation:"+operations[0]] += 1
 		#features['previousBigram:'+str(previous_words_2[2])+"_"+previous_words[2]+"-operation:"+operations[1]] += 1
 
+		# Feature 4: nextBigram:one_bigram-operation:+
 
-		# Feature 4: next 2 word
 		#next_words_2 = []
 		#for i in range(0, len(alignment)):
-		#	index = alignment[i] + len(str(numbers[i])) + 1
-		#	nextWords = question[index:len(question)].split(" ")
+		#	index5 = alignment[i] + len(str(numbers[i])) + 1
+		#	nextWords = question[index5:len(question)].split(" ")
 		#	nextWords.pop(len(nextWords)-1)
 
 		#	if len(nextWords) >= 2:
@@ -234,6 +234,9 @@ def extract_features(data):
 		#	else:
 		#		next_words_2.append("NOT_FOUND")
 
+		#features['nextBigram:'+str(next_words[0])+"_"+next_words_2[0]+"-operation:+"] += 1
+		#features['nextBigram:'+str(next_words[1])+"_"+next_words_2[1]+"-operation:"+operations[0]] += 1
+		#features['nextBigram:'+str(next_words[2])+"_"+next_words_2[2]+"-operation:"+operations[1]] += 1			
 
 
 		# For the first number that appears in the template the sign is always positive
@@ -268,7 +271,8 @@ def extract_features(data):
 		id_features_dict[index]['previousWords'] = previous_words
 		id_features_dict[index]['nextWords'] = next_words
 		#id_features_dict[index]['previousWords2'] = previous_words_2
-
+		#id_features_dict[index]['nextWords2'] = next_words_2
+ 
 	return id_features_dict
 
 # Function that produces all the possible combinations of the template
@@ -320,7 +324,13 @@ def extract_combination_features(problem, combination):
 	#features['previousBigram:'+str(previous_words_2[1])+"_"+previous_words[1]+"-operation:"+operations[0]] += 1
 	#features['previousBigram:'+str(previous_words_2[2])+"_"+previous_words[2]+"-operation:"+operations[1]] += 1
 
+	# Feature 4: nextBigram-operation
+	#next_words_2 = problem['nextWords2']
+	#next_words = problem['nextWords']
 
+	#features['nextBigram:'+str(next_words[0])+"_"+next_words_2[0]+"-operation:+"] += 1
+	#features['nextBigram:'+str(next_words[1])+"_"+next_words_2[1]+"-operation:"+operations[0]] += 1
+	#pfeatures['nextBigram:'+str(next_words[2])+"_"+next_words_2[2]+"-operation:"+operations[1]] += 1	
 	# Feature 5: containsHowMuch:true/false_type:integer/float
 	#containsHowMuch = False
 	#if 'how many' in question.lower():
