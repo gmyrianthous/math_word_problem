@@ -10,8 +10,11 @@ from random import shuffle
 from tqdm import tqdm
 from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.tag.perceptron import PerceptronTagger
+from nltk.parse.stanford import StanfordDependencyParser
 
-
+# Paths for NLTK models
+path_to_jar = 'stanford-corenlp-full-2017-06-09/stanford-corenlp-3.8.0.jar' 
+path_to_models_jar = 'stanford-corenlp-full-2017-06-09/stanford-corenlp-3.8.0-models.jar'
 
 # Returns: list of dicts
 def read_data_json(filename):
@@ -140,6 +143,9 @@ def dot_product(features_dict, weights):
 
 # Extract features for a given set of data points.
 def extract_features(data):
+	# Syntactic dependecy parser (Stanford corenlp)
+	dependency_parser = StanfordDependencyParser(path_to_jar=path_to_jar, path_to_models_jar=path_to_models_jar)
+
 	id_features_dict = OrderedDict()
 
 	for math_problem in data:
@@ -204,6 +210,45 @@ def extract_features(data):
 		features['nextWord:'+str(next_words[1])+"_operation:"+operations[0]] += 1
 		features['nextWord:'+str(next_words[2])+"_operation:"+operations[1]] += 1
 
+		# Feature 3: eachFlag:True/False_operation:op
+		#if ' each' in question:
+		#	features['containsEach:True_lastOperation:'+operations[1]] += 1
+		#else:
+		#	features['containsEach:False_lastOperation:'+operations[1]] += 1
+
+		#else:
+		#	features['eachFlag:False_operation:'+operations[0]] += 1
+		#	features['eachFlag:False_operation:'+operations[1]] += 1
+
+			#for i in range(0, len(alignment)):
+			#	starting_index_right = alignment[i] + len(str(numbers[i])) + 1
+			#	starting_index_left = alignment[i] - 1
+			#	words_to_the_right = question[starting_index_right:len(question)+1]
+			#	words_to_the_left = question[:starting_index_left]
+			#	print(words_to_the_right)
+			#	print(words_to_the_left)
+
+			#print(question)
+			#print(equation)
+			#print(features)
+			#sys.exit(1)
+
+
+
+		#if index 
+
+		# Feature 3: syntactic dependencies
+		#question = "For Halloween Faye scored 47 pieces of candy. She ate 25 pieces the first night and then her sister gave her 40 more pieces. How many pieces of candy does Faye have now?"
+		#result = dependency_parser.raw_parse(question.lstrip())
+		#dep = result.__next__() 
+
+		#print(question)
+		#dependencies_list = list(dep.triples())
+		#for dep in dependencies_list:
+		#	print(dep)
+		#print("")
+
+		#sys.exit(1)
 
 		# Feature 3: previousBigram:one_bigram-operation:+
 		#previous_words_2 = []
@@ -317,6 +362,14 @@ def extract_combination_features(problem, combination):
 	features['nextWord:'+str(next_words[1])+"_operation:"+operations[0]] += 1
 	features['nextWord:'+str(next_words[2])+"_operation:"+operations[1]] += 1
 
+
+	# Feature 3: eachFlag:True/False_operation:op
+	#if ' each' in question:
+	#	features['containsEach:True_lastOperation:'+operations[1]] += 1
+	#else:
+	#	features['containsEach:False_lastOperation:'+operations[1]] += 1
+
+
 	# Feature 3: prevBigrams-operation
 	#previous_words_2 = problem['previousWords2']
 	#previous_words = problem['previousWords']
@@ -390,7 +443,7 @@ def argmax(problem, weights):
 
 # Train the strucutred perceptron and learn the weights. 
 # Multiple passes, shuffline and averaging can improve the performance of our classifier. 
-def train(data, iterations=9):
+def train(data, iterations=9, debugging=False):
 	# Initialise the weights
 	weights = initialise_weights(data)
 
@@ -437,7 +490,7 @@ def train(data, iterations=9):
 	return weights
 
 # Testing phase of structured perceptron
-def test(data, weights):
+def test(data, weights, debugging=False):
 	correct_counter = 0
 
 	for problem in data:
@@ -495,12 +548,17 @@ if __name__ == "__main__":
 		training_features = extract_features(training_data)
 		testing_features = extract_features(testing_data)
 
+		# ERROR ANALYSIS
+		#if (i == 4):
+		#	for feature in training_features:
+		#		print(training_features[feature]['question'])
+		#		print(training_features[feature]['equation'])
+		#		print(training_features[feature]['features'])
+
+		#		print("")
+
 		# Train the structured perceptron in order to learn the weights
 		feature_weights = train(training_features)
-
-		#print("")
-		#print(feature_weights)
-		#print("")
 
 		# Test the perceptron
 		curr_accuracy = test(testing_features, feature_weights)
