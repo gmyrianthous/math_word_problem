@@ -166,17 +166,17 @@ def extract_features(data):
 			equation, alignment, numbers, operations = convert_template(equation, alignment, numbers, operations)
 
 
-		# Feature 2: previousWord:word_operation_-
+		# Feature 1: previousWord:word_operation_-
 		# Get previous word
 		previous_words = []
 		for i in range(0, len(alignment)):
-			index = alignment[i]-2
+			index2 = alignment[i]-2
 			reversed_word = ""
-			curr_char = question[index]
+			curr_char = question[index2]
 			while curr_char != " ":
 				reversed_word += curr_char
-				index -= 1
-				curr_char = question[index] 
+				index2 -= 1
+				curr_char = question[index2] 
 
 			previous_words.append(re.sub('[^A-Za-z0-9]+', '', reversed_word[::-1]).lower())
 
@@ -186,17 +186,17 @@ def extract_features(data):
 		features['previousWord:'+str(previous_words[2])+"_operation:"+operations[1]] += 1
 
 
-		# Feature 3: nextWord:word_operation_-
+		# Feature 2: nextWord:word_operation_-
 		# Get next word
 		next_words = []
 		for i in range(0, len(alignment)):
-			index = alignment[i] + len(str(numbers[i])) + 1
+			index3 = alignment[i] + len(str(numbers[i])) + 1
 			word = ""
-			curr_char = question[index]
+			curr_char = question[index3]
 			while curr_char != " ":
 				word += curr_char
-				index += 1
-				curr_char = question[index]
+				index3 += 1
+				curr_char = question[index3]
 			next_words.append(re.sub('[^A-Za-z0-9]+', '', word).lower())
 
 		# For the first number that appears in the template the sign is always positive
@@ -205,7 +205,7 @@ def extract_features(data):
 		features['nextWord:'+str(next_words[2])+"_operation:"+operations[1]] += 1
 
 
-		# Feature 3: word before previous word (previous 2nd word)
+		# Feature 3: previousBigram:one_bigram-operation:+
 		#previous_words_2 = []
 		#for i in range(0, len(alignment)):
 		#	index = alignment[i]-2-len(previous_words[i])-1
@@ -217,9 +217,9 @@ def extract_features(data):
 		#		curr_char = question[index]
 		#	previous_words_2.append(re.sub('[^A-Za-z0-9]+', '', reversed_word[::-1]).lower())
 
-		#features['previousWord2:'+str(previous_words_2[0])+"_operation:+"] += 1
-		#features['previousWord2:'+str(previous_words_2[1])+"_operation:"+operations[0]] += 1
-		#features['previousWord2:'+str(previous_words_2[2])+"_operation:"+operations[1]] += 1		
+		#features['previousBigram:'+str(previous_words_2[0])+"_"+previous_words[0]+"-operation:+"] += 1
+		#features['previousBigram:'+str(previous_words_2[1])+"_"+previous_words[1]+"-operation:"+operations[0]] += 1
+		#features['previousBigram:'+str(previous_words_2[2])+"_"+previous_words[2]+"-operation:"+operations[1]] += 1
 
 
 		# Feature 4: next 2 word
@@ -241,6 +241,18 @@ def extract_features(data):
 		#features['nextWord2:'+str(next_words_2[1])+"_operation:"+operations[0]] += 1
 		#features['nextWord2:'+str(next_words_2[2])+"_operation:"+operations[1]] += 1
 
+		# Feature 5: containsHowMuch:true/false_type:integer/float
+		#containsHowMuch = False
+		#if 'how many' in question.lower():
+		#	containsHowMuch = True
+
+		#if (solution).is_integer():
+		#	features['containsHowMany:'+str(containsHowMuch)+"_type:integer"] += 1
+		#else:
+		#	features['containsHowMany:'+str(containsHowMuch)+"_type:float"] += 1
+
+
+
 
 		# Add the features into the dictionary
 		id_features_dict[index] = {}
@@ -255,7 +267,6 @@ def extract_features(data):
 		id_features_dict[index]['operations'] = operations
 		id_features_dict[index]['previousWords'] = previous_words
 		id_features_dict[index]['nextWords'] = next_words
-		#id_features_dict[index]['nextWords2'] = next_words_2
 		#id_features_dict[index]['previousWords2'] = previous_words_2
 
 	return id_features_dict
@@ -281,6 +292,7 @@ def extract_combination_features(problem, combination):
 	alignment = problem['alignment']
 	numbers = problem['numbers']
 	question = problem['question']
+	solution = problem['solution']
 
 	# Get the operations of the combination
 	operations = get_operations_in_template(combination)
@@ -301,20 +313,23 @@ def extract_combination_features(problem, combination):
 	features['nextWord:'+str(next_words[1])+"_operation:"+operations[0]] += 1
 	features['nextWord:'+str(next_words[2])+"_operation:"+operations[1]] += 1
 
-	# Feature 3: word before previous word (previous 2nd word)
+	# Feature 3: prevBigrams-operation
 	#previous_words_2 = problem['previousWords2']
+	#previous_words = problem['previousWords']
+	#features['previousBigram:'+str(previous_words_2[0])+"_"+previous_words[0]+"-operation:+"] += 1
+	#features['previousBigram:'+str(previous_words_2[1])+"_"+previous_words[1]+"-operation:"+operations[0]] += 1
+	#features['previousBigram:'+str(previous_words_2[2])+"_"+previous_words[2]+"-operation:"+operations[1]] += 1
 
-	#features['previousWord2:'+str(previous_words_2[0])+"_operation:+"] += 1
-	#features['previousWord2:'+str(previous_words_2[1])+"_operation:"+operations[0]] += 1
-	#features['previousWord2:'+str(previous_words_2[2])+"_operation:"+operations[1]] += 1
 
-	# Feature 4: next word for each number
-	#next_words_2 = problem['nextWords2']
+	# Feature 5: containsHowMuch:true/false_type:integer/float
+	#containsHowMuch = False
+	#if 'how many' in question.lower():
+	#	containsHowMuch = True
 
-	# For the first number that appears in the template the sign is always positive
-	#features['nextWord:'+str(next_words_2[0])+"_operation:+"] += 1
-	#features['nextWord:'+str(next_words_2[1])+"_operation:"+operations[0]] += 1
-	#features['nextWord:'+str(next_words_2[2])+"_operation:"+operations[1]] += 1
+	#if (solution).is_integer():
+	#	features['containsHowMany:'+str(containsHowMuch)+"_type:integer"] += 1
+	#else:
+	#	features['containsHowMany:'+str(containsHowMuch)+"_type:float"] += 1
 
 
 	return features	
@@ -353,21 +368,8 @@ def argmax(problem, weights):
 		combination_features = extract_combination_features(problem, combination_filled_in)
 
 		combination_result = eval(combination_filled_in)
-		#if 'how many' in question.lower():
-		#	if isinstance(combination_result, int) and combination_result > 0:
-		#		dot = dot_product(combination_features, weights)
-		#		if (max_dot is None or dot > max_dot):
-		#			max_dot = dot
-		#			max_features = combination_features
-		#			max_combination = combination_filled_in
-		#elif 'how much' in question.lower():
-		#	if isinstance(combination_result, float) and combination_result > 0:
-		#		dot = dot_product(combination_features, weights)
-		#		if (max_dot is None or dot > max_dot):
-		#			max_dot = dot
-		#			max_features = combination_features
-		#			max_combination = combination_filled_in
-		#else:
+
+		#if isinstance( combination_result, int) or (combination_result).is_integer():
 		dot = dot_product(combination_features, weights)
 		if (max_dot is None or dot > max_dot):
 			max_dot = dot
@@ -486,9 +488,9 @@ if __name__ == "__main__":
 		# Train the structured perceptron in order to learn the weights
 		feature_weights = train(training_features)
 
-	#	print("")
-	#	print(feature_weights)
-	#	print("")
+		#print("")
+		#print(feature_weights)
+		#print("")
 
 		# Test the perceptron
 		curr_accuracy = test(testing_features, feature_weights)
