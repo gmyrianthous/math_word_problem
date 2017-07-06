@@ -12,6 +12,10 @@ from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.tag.perceptron import PerceptronTagger
 from nltk.parse.stanford import StanfordDependencyParser
 
+# Word-net lemmatizer to lemmatize words
+from nltk.stem.wordnet import WordNetLemmatizer
+lemmatizer = WordNetLemmatizer()
+
 # Paths for NLTK models
 path_to_jar = 'stanford-corenlp-full-2017-06-09/stanford-corenlp-3.8.0.jar' 
 path_to_models_jar = 'stanford-corenlp-full-2017-06-09/stanford-corenlp-3.8.0-models.jar'
@@ -72,6 +76,9 @@ def k_fold_cross_validation(data, dataset = "MultiArith"):
 
 	return k_folds
 
+# WordNetLemmatizer requires a pos tag as argument. By default it is 'n' (standing for noun). v for verb
+def lemmatize_word(word):
+	return lemmatizer.lemmatize(word,'v')
 
 def get_numbers_in_template(alignment, question):
 	numbers = []  
@@ -211,10 +218,29 @@ def extract_features(data):
 		features['nextWord:'+str(next_words[2])+"_operation:"+operations[1]] += 1
 
 		# Feature 3: eachFlag:True/False_operation:op
-		#if ' each' in question:
-		#	features['containsEach:True_lastOperation:'+operations[1]] += 1
+		if ' each' in question:
+			features['questionContainsEach:True_lastOperation:'+operations[1]] += 1
+
+		# Feature 4: operation:op_positionInTemplate:pos
+		features['operation:'+operations[0]+"_positionInTemplate:0"] += 1
+		features['operation:'+operations[1]+"_positionInTemplate:1"] += 1
+
+
+		# Feature 5: containsHowMany:true/false_type:integer/float
+		#containsHowMany = False
+		#if 'how many' in question.lower():
+		#	containsHowMany = True
+
+		#	features['containsHowMany:'+str(containsHowMany)+"_type:integer"] += 1
 		#else:
-		#	features['containsEach:False_lastOperation:'+operations[1]] += 1
+		#	features['containsHowMany:'+str(containsHowMany)+"_type:float"] += 1
+
+		# Feature 3: eachFlag:True/False_operation:op
+		#features['containsEach:False_operation:'+operations[0]] += 1
+		#if ' each' in question:
+		#	features['containsEach:True_operation:'+operations[1]] += 1
+		#else:
+		#	features['containsEach:False_operation:'+operations[1]] += 1
 
 		#else:
 		#	features['eachFlag:False_operation:'+operations[0]] += 1
@@ -302,6 +328,7 @@ def extract_features(data):
 
 
 
+
 		# Add the features into the dictionary
 		id_features_dict[index] = {}
 		id_features_dict[index]['features'] = features
@@ -327,10 +354,10 @@ def get_equation_combinations():
 	op = ['+', '-', '/', '*']
 	combinations = []
 
-	for symbols in itertools.permutations(symbol):
-	    for ops in itertools.product(op, repeat=2):
-	        combinations.append("(%s %s %s) %s %s" % (
-	            symbols[0], ops[0], symbols[1], ops[1], symbols[2]))
+	#for symbols in itertools.permutations(symbol):
+	for ops in itertools.product(op, repeat=2):
+		combinations.append("(%s %s %s) %s %s" % (
+			symbol[0], ops[0], symbol[1], ops[1], symbol[2]))
 
 	return combinations
 
@@ -362,38 +389,13 @@ def extract_combination_features(problem, combination):
 	features['nextWord:'+str(next_words[1])+"_operation:"+operations[0]] += 1
 	features['nextWord:'+str(next_words[2])+"_operation:"+operations[1]] += 1
 
-
 	# Feature 3: eachFlag:True/False_operation:op
-	#if ' each' in question:
-	#	features['containsEach:True_lastOperation:'+operations[1]] += 1
-	#else:
-	#	features['containsEach:False_lastOperation:'+operations[1]] += 1
+	if ' each' in question:
+		features['questionContainsEach:True_lastOperation:'+operations[1]] += 1
 
-
-	# Feature 3: prevBigrams-operation
-	#previous_words_2 = problem['previousWords2']
-	#previous_words = problem['previousWords']
-	#features['previousBigram:'+str(previous_words_2[0])+"_"+previous_words[0]+"-operation:+"] += 1
-	#features['previousBigram:'+str(previous_words_2[1])+"_"+previous_words[1]+"-operation:"+operations[0]] += 1
-	#features['previousBigram:'+str(previous_words_2[2])+"_"+previous_words[2]+"-operation:"+operations[1]] += 1
-
-	# Feature 4: nextBigram-operation
-	#next_words_2 = problem['nextWords2']
-	#next_words = problem['nextWords']
-
-	#features['nextBigram:'+str(next_words[0])+"_"+next_words_2[0]+"-operation:+"] += 1
-	#features['nextBigram:'+str(next_words[1])+"_"+next_words_2[1]+"-operation:"+operations[0]] += 1
-	#pfeatures['nextBigram:'+str(next_words[2])+"_"+next_words_2[2]+"-operation:"+operations[1]] += 1	
-	# Feature 5: containsHowMuch:true/false_type:integer/float
-	#containsHowMuch = False
-	#if 'how many' in question.lower():
-	#	containsHowMuch = True
-
-	#if (solution).is_integer():
-	#	features['containsHowMany:'+str(containsHowMuch)+"_type:integer"] += 1
-	#else:
-	#	features['containsHowMany:'+str(containsHowMuch)+"_type:float"] += 1
-
+	# Feature 4: operation:op_positionInTemplate:pos
+	features['operation:'+operations[0]+"_positionInTemplate:0"] += 1
+	features['operation:'+operations[1]+"_positionInTemplate:1"] += 1
 
 	return features	
 
@@ -502,22 +504,13 @@ def test(data, weights, debugging=False):
 		# Predict the sequence of numbers and operations according to the template. 
 		y_hat_dot, y_hat_features, y_hat_combination = argmax(data[problem], weights)	
 
-		#print("Question: " + question)
-		#print("Correct features: " + str(features))
-		#print("Predicted features: " + str(y_hat_features))
-		#print("Correct solution: " + str(equation))
-		#print("Predicted solution: " + y_hat_combination)
-		#print("")
-
 		# Execute the predicted equation
 		prediction = eval(y_hat_combination)
-
 
 		if solution == prediction:
 			correct_counter += 1
 
 	accuracy = correct_counter / len(data) * 100
-	#print ("Testing accuracy: " + str(accuracy))
 
 	return accuracy
 
