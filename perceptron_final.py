@@ -201,11 +201,11 @@ def extract_features(data, indices):
 			next_words = []
 			for i in range(0, len(alignment)):
 				index3 = alignment[i] + len(str(numbers[i])) + 1
+
 				if not question[index3].isalpha():
 					while not question[index3].isalpha():
 						index3+=1 
-				#if question[index3] == " " or not question[index3].isalpha():
-				#	index3 += 1
+
 				word = ""
 				curr_char = question[index3]
 				while curr_char != " " and index3 < len(question)-1:
@@ -231,13 +231,12 @@ def extract_features(data, indices):
 			if len(operations) > 1:
 				features['secondOperation:'+operations[1]] += 1
 
+
 			print(question)
 			print(equation)
-			print(numbers)
-			print(next_words)
-			print(previous_words)
+			print(features)
 			print("")
-
+			
 			# Add the features into the dictionary
 			id_features_dict[index] = {}
 			id_features_dict[index]['features'] = features
