@@ -181,6 +181,7 @@ def extract_features(data, indices):
 
 				if question[index2] == " ":
 					index2 -= 1
+
 				reversed_word = ""
 				curr_char = question[index2]
 				while curr_char != " ":
@@ -231,12 +232,29 @@ def extract_features(data, indices):
 			if len(operations) > 1:
 				features['secondOperation:'+operations[1]] += 1
 
+			# Feature 6: asksHowMany:True/False_resultType:int/float
+			if 'how many' in question:
+				if (solution).is_integer():
+					features['asksHowMany:True_resultType:int'] += 1
+				else:
+					features['asksHowMany:True_resultType:float'] +=1 
+			else:
+				if (solution).is_integer():
+					features['asksHowMany:False_resultType:int'] += 1
+				else:
+					features['asksHowMany:False_resultType:float'] += 1
 
-			print(question)
-			print(equation)
-			print(features)
-			print("")
-			
+			if 'how much' in question:
+				if (solution).is_integer():
+					features['asksHowMuch:True_resultType:int'] += 1
+				else:
+					features['asksHowMuch:True_resultType:float'] +=1 
+			else:
+				if (solution).is_integer():
+					features['asksHowMuch:False_resultType:int'] += 1
+				else:
+					features['asksHowMuch:False_resultType:float'] += 1			
+
 			# Add the features into the dictionary
 			id_features_dict[index] = {}
 			id_features_dict[index]['features'] = features
@@ -350,6 +368,30 @@ def extract_combination_features(problem, combination):
 	# Feature 5: secondOperation in template
 	if len(operations) > 1:
 		features['secondOperation:'+operations[1]] += 1
+
+	# Feature 6: asksHowMany:True/False_resultType:int/float
+	combination_result = eval(combination)
+	if 'how many' in question:
+		if isinstance(combination_result, int) or (combination_result).is_integer():
+			features['asksHowMany:True_resultType:int'] += 1
+		else:
+			features['asksHowMany:True_resultType:float'] +=1 
+	else:
+		if isinstance(combination_result, int) or (combination_result).is_integer():
+			features['asksHowMany:False_resultType:int'] += 1
+		else:
+			features['asksHowMany:False_resultType:float'] += 1	
+
+	if 'how much' in question:
+		if isinstance(combination_result, int) or (combination_result).is_integer():
+			features['asksHowMuch:True_resultType:int'] += 1
+		else:
+			features['asksHowMuch:True_resultType:float'] +=1 
+	else:
+		if isinstance(combination_result, int) or (combination_result).is_integer():
+			features['asksHowMuch:False_resultType:int'] += 1
+		else:
+			features['asksHowMuch:False_resultType:float'] += 1	
 
 	return features	
 
