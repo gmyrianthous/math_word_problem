@@ -178,6 +178,9 @@ def extract_features(data, indices):
 			previous_words = []
 			for i in range(0, len(alignment)):
 				index2 = alignment[i]-2
+
+				if question[index2] == " ":
+					index2 -= 1
 				reversed_word = ""
 				curr_char = question[index2]
 				while curr_char != " ":
@@ -198,6 +201,8 @@ def extract_features(data, indices):
 			next_words = []
 			for i in range(0, len(alignment)):
 				index3 = alignment[i] + len(str(numbers[i])) + 1
+				if question[index3] == " " or not question[index3].isalpha():
+					index3 += 1
 				word = ""
 				curr_char = question[index3]
 				while curr_char != " " and index3 < len(question)-1:
@@ -218,7 +223,6 @@ def extract_features(data, indices):
 			# Feature 4: operation:op_positionInTemplate:pos
 			for i in range(0, len(operations)):
 				features['operation:'+operations[i]+"_positionInTemplate:"+str(i+1)] += 1
-			#features['operation:'+operations[1]+"_positionInTemplate:2"] += 1
 
 			# Feature 5: secondOperation in template
 			if len(operations) > 1:
@@ -227,7 +231,8 @@ def extract_features(data, indices):
 			print(question)
 			print(equation)
 			print(numbers)
-			print(features)
+			print(next_words)
+			print(previous_words)
 			print("")
 
 			# Add the features into the dictionary
@@ -434,7 +439,6 @@ def train(data, dataset_name, iterations=9,  debugging=False):
 
 			if solution == prediction:
 				training_accuracy += 1
-		#print("Training accuracy: " + str(training_accuracy / len(data) * 100))
 
 	return weights
 
