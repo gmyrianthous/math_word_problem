@@ -224,6 +224,11 @@ def extract_features(data, indices):
 			if len(operations) > 1:
 				features['secondOperation:'+operations[1]] += 1
 
+			print(question)
+			print(equation)
+			print(numbers)
+			print(features)
+			print("")
 
 			# Add the features into the dictionary
 			id_features_dict[index] = {}
@@ -268,15 +273,25 @@ def shuffle_data(data):
 
 # Function that produces all the possible combinations of the template
 # Total: 96 operations
-def get_equation_combinations():
-	symbol = ['a', 'b', 'c']
-	op = ['+', '-', '/', '*']
-	combinations = []
+def get_equation_combinations(dataset_name):
+	if dataset_name == "MultiArith":
+		symbol = ['a', 'b', 'c']
+		op = ['+', '-', '/', '*']
+		combinations = []
 
-	for symbols in itertools.permutations(symbol):
-		for ops in itertools.product(op, repeat=2):
-			combinations.append("(%s %s %s) %s %s" % (
-				symbols[0], ops[0], symbols[1], ops[1], symbols[2]))
+		for symbols in itertools.permutations(symbol):
+			for ops in itertools.product(op, repeat=2):
+				combinations.append("(%s %s %s) %s %s" % (
+					symbols[0], ops[0], symbols[1], ops[1], symbols[2]))
+	elif dataset_name == "SingleOp":
+		symbol = ['a', 'b']
+		op = ['+', '-', '/', '*']
+		combinations = []
+
+		for symbols in itertools.permutations(symbol):
+		    for ops in itertools.product(op, repeat=1):
+		        combinations.append("%s %s %s" % (
+		            symbols[0], ops[0], symbols[1]))		
 
 	return combinations
 
@@ -305,39 +320,41 @@ def extract_combination_features(problem, combination):
 
 	# For the first number that appears in the template the sign is always positive
 	features['previousWord:'+str(previous_words[0])+"_operation:+"] += 1
-	features['previousWord:'+str(previous_words[1])+"_operation:"+operations[0]] += 1
-	features['previousWord:'+str(previous_words[2])+"_operation:"+operations[1]] += 1
+	for i in range(0, len(operations)):
+		features['previousWord:'+str(previous_words[i+1])+"_operation:"+operations[i]] += 1
 
 	# Feature 2: next word for each number
 	next_words = problem['nextWords']
 
 	# For the first number that appears in the template the sign is always positive
 	features['nextWord:'+str(next_words[0])+"_operation:+"] += 1
-	features['nextWord:'+str(next_words[1])+"_operation:"+operations[0]] += 1
-	features['nextWord:'+str(next_words[2])+"_operation:"+operations[1]] += 1
+	for i in range(0, len(operations)):
+		features['nextWord:'+str(next_words[i+1])+"_operation:"+operations[i]] += 1
 
 	# Feature 3: eachFlag:True/False_lastOperation:op
 	if ' each' in question:
-		features['questionContainsEach:True_lastOperation:'+operations[1]] += 1
+		features['questionContainsEach:True_lastOperation:'+operations[-1]] += 1
 	
 	# Feature 4: operation:op_positionInTemplate:pos
-	features['operation:'+operations[0]+"_positionInTemplate:1"] += 1
-	features['operation:'+operations[1]+"_positionInTemplate:2"] += 1
+	for i in range(0, len(operations)):
+		features['operation:'+operations[i]+"_positionInTemplate:"+str(i+1)] += 1
+	#features['operation:'+operations[1]+"_positionInTemplate:2"] += 1
 
 	# Feature 5: secondOperation in template
-	features['secondOperation:'+operations[1]] += 1
+	if len(operations) > 1:
+		features['secondOperation:'+operations[1]] += 1
 
 	return features	
 
 
 # Get the most promising combination 
-def argmax(problem, weights):
+def argmax(problem, weights, dataset_name):
 	equation = problem['equation']
 	numbers = problem['numbers']
 	question = problem['question']
 
 	# Get the possible combinations
-	combinations = get_equation_combinations()
+	combinations = get_equation_combinations(dataset_name)
 
 	# Construct each combination and compute the features and score for each. 
 	max_dot = None 
@@ -375,7 +392,7 @@ def argmax(problem, weights):
 
 # Train the strucutred perceptron and learn the weights. 
 # Multiple passes, shuffline and averaging can improve the performance of our classifier. 
-def train(data, iterations=9, debugging=False):
+def train(data, dataset_name, iterations=9,  debugging=False):
 	# Initialise the weights
 	weights = initialise_weights(data)
 
@@ -390,7 +407,7 @@ def train(data, iterations=9, debugging=False):
 			features = data[problem]['features']
 
 			# Predict the sequence of numbers and operations according to the template. 
-			y_hat_dot, y_hat_features, y_hat_combination = argmax(data[problem], weights)
+			y_hat_dot, y_hat_features, y_hat_combination = argmax(data[problem], weights, dataset_name)
 
 			# Extract the correct/wrong features
 			features_for_addition = []
@@ -422,7 +439,7 @@ def train(data, iterations=9, debugging=False):
 	return weights
 
 # Testing phase of structured perceptron
-def test(data, weights, debugging=False):
+def test(data, weights, dataset_name, debugging=False):
 	correct_counter = 0
 
 	for problem in data:
@@ -432,7 +449,7 @@ def test(data, weights, debugging=False):
 		equation = data[problem]['equation']
 
 		# Predict the sequence of numbers and operations according to the template. 
-		y_hat_dot, y_hat_features, y_hat_combination = argmax(data[problem], weights)	
+		y_hat_dot, y_hat_features, y_hat_combination = argmax(data[problem], weights, dataset_name)	
 
 		# Execute the predicted equation
 		prediction = eval(y_hat_combination)
@@ -471,10 +488,10 @@ if __name__ == "__main__":
 		testing_features = extract_features(data, testing_indices)
 
 		# Train the structured perceptron in order to learn the weights
-		feature_weights = train(training_features)
+		feature_weights = train(training_features, dataset_name)
 
 		# Test the perceptron
-		curr_accuracy = test(testing_features, feature_weights)
+		curr_accuracy = test(testing_features, feature_weights, dataset_name)
 		accuracy_per_fold.append(curr_accuracy)
 		accuracy += curr_accuracy 
 
