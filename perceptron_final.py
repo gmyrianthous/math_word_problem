@@ -201,8 +201,11 @@ def extract_features(data, indices):
 			next_words = []
 			for i in range(0, len(alignment)):
 				index3 = alignment[i] + len(str(numbers[i])) + 1
-				if question[index3] == " " or not question[index3].isalpha():
-					index3 += 1
+				if not question[index3].isalpha():
+					while not question[index3].isalpha():
+						index3+=1 
+				#if question[index3] == " " or not question[index3].isalpha():
+				#	index3 += 1
 				word = ""
 				curr_char = question[index3]
 				while curr_char != " " and index3 < len(question)-1:
