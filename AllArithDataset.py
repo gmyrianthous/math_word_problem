@@ -26,6 +26,19 @@ def get_numbers_in_template(quantities, alignment):
 
 	return numbers_ordered
 
+def get_operations_in_template(equation):
+	operations = []
+	for char in equation:
+		if char == "+":
+			operations.append("+")
+		elif char == "-":
+			operations.append("-")
+		elif char == "*":
+			operations.append("*")
+		elif char == "/":
+			operations.append("/")
+	return operations	
+
 # Extract features for problems that belong to the AllArith dataset
 # that has a different format. 
 def extract_features(data, indices):
@@ -48,7 +61,8 @@ def extract_features(data, indices):
 			# Get the numbers in the correct order
 			numbers = get_numbers_in_template(quantities, alignment)
 
-
+			# Extract the operations as they appear in the equation
+			operations = get_operations_in_template(equation)
 
 			print("Q:" + question)
 			print(quantities)
@@ -57,6 +71,8 @@ def extract_features(data, indices):
 			print(equation)
 			print(number_of_quantities)
 			print("Extracted numbers: " + str(numbers))
+			print("Extracted operations: " + str(operations))
+			print("")
 
 	sys.exit(1)
 
