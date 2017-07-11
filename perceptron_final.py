@@ -25,7 +25,7 @@ def read_data_json(filename):
 	return data
 
 # Report number of problems, sentences, words; vocab size; mean words and sentences per problem.
-def report_dataset_stats(data):
+def report_dataset_stats(data, dataset_name):
 	number_of_problems = len(data)
 	number_of_sentences = 0
 	number_of_words = 0
@@ -44,6 +44,7 @@ def report_dataset_stats(data):
 	mean_sentences_per_problem = number_of_sentences / number_of_problems
 
 	print("Dataset stats")
+	print("\t -Dataset name: " + dataset_name)
 	print("\t -Number of problems: " + str(number_of_problems))
 	print("\t -Number of sentences: " + str(number_of_sentences))
 	print("\t -Number of words: " + str(number_of_words))
@@ -244,6 +245,7 @@ def extract_features(data, indices):
 				else:
 					features['asksHowMany:False_resultType:float'] += 1
 
+			# Feature 7: asksHowMuch:True/False_resultType:int/float
 			if 'how much' in question:
 				if (solution).is_integer():
 					features['asksHowMuch:True_resultType:int'] += 1
@@ -382,6 +384,7 @@ def extract_combination_features(problem, combination):
 		else:
 			features['asksHowMany:False_resultType:float'] += 1	
 
+	# Feature 7: asksHowMuch:True/False_resultType:int/float
 	if 'how much' in question:
 		if isinstance(combination_result, int) or (combination_result).is_integer():
 			features['asksHowMuch:True_resultType:int'] += 1
@@ -441,10 +444,11 @@ def argmax(problem, weights, dataset_name):
 
 # Train the strucutred perceptron and learn the weights. 
 # Multiple passes, shuffline and averaging can improve the performance of our classifier. 
-def train(data, dataset_name, iterations=9,  debugging=False):
+def train(data, dataset_name, iterations=5,  debugging=False):
 	# Initialise the weights
 	weights = initialise_weights(data)
 
+	training_accuracies = []
 	# Multiple passes
 	for i in tqdm(range(iterations)):
 		training_accuracy = 0
@@ -484,7 +488,11 @@ def train(data, dataset_name, iterations=9,  debugging=False):
 			if solution == prediction:
 				training_accuracy += 1
 
-	return weights
+		# Compute the training accuracy for each iteration
+		accuracy = training_accuracy / len(data) * 100
+		training_accuracies.append(accuracy)
+
+	return weights, training_accuracies
 
 # Testing phase of structured perceptron
 def test(data, weights, dataset_name, debugging=False):
@@ -519,7 +527,7 @@ if __name__ == "__main__":
 	data = read_data_json('data/'+dataset_name+'.json')
 
 	# Report dataset's stats -> stdout
-	report_dataset_stats(data)
+	report_dataset_stats(data, dataset_name)
 
 	# Perform k-fold cross validation -> list of k tuples(training, testing)
 	k_folds = k_fold_cross_validation(data, dataset_name)
@@ -536,7 +544,7 @@ if __name__ == "__main__":
 		testing_features = extract_features(data, testing_indices)
 
 		# Train the structured perceptron in order to learn the weights
-		feature_weights = train(training_features, dataset_name)
+		feature_weights, training_accuracy = train(training_features, dataset_name)
 
 		# Test the perceptron
 		curr_accuracy = test(testing_features, feature_weights, dataset_name)
@@ -545,3 +553,4 @@ if __name__ == "__main__":
 
 	print("Testing accuracy: " + str(accuracy / len(accuracy_per_fold)))
 	print("Accuracy per fold: " + str(accuracy_per_fold))
+	print("Training accuracy per fold: " + str(training_accuracy))
