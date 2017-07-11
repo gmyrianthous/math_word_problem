@@ -11,6 +11,7 @@ from tqdm import tqdm
 from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.tag.perceptron import PerceptronTagger
 from nltk.parse.stanford import StanfordDependencyParser
+import AllArithDataset
 
 # Paths for NLTK models
 path_to_jar = 'stanford-corenlp-full-2017-06-09/stanford-corenlp-3.8.0.jar' 
@@ -97,6 +98,9 @@ def k_fold_cross_validation(data, dataset):
 	elif dataset == "SingleOp":
 		for i in range(0, 5):
 			k_folds.append(read_folds('data/illinois/fold'+str(i)+'.txt', dataset_indices))
+	elif dataset == "AllArith":
+		for i in range(0, 5):
+			k_folds.append(read_folds('data/allArith/fold'+str(i)+'.txt', dataset_indices))
 	return k_folds
 
 def get_numbers_in_template(alignment, question):
@@ -497,6 +501,7 @@ def train(data, dataset_name, iterations=5,  debugging=False):
 # Testing phase of structured perceptron
 def test(data, weights, dataset_name, debugging=False):
 	correct_counter = 0
+	incorrect_problems = [] # error analysis
 
 	for problem in data:
 		features = data[problem]['features']
@@ -512,9 +517,11 @@ def test(data, weights, dataset_name, debugging=False):
 
 		if solution == prediction:
 			correct_counter += 1
+		else:
+			incorrect_problems.append(question)
 
 	accuracy = correct_counter / len(data) * 100
-
+	print(incorrect_problems)
 	return accuracy
 
 if __name__ == "__main__":
@@ -540,8 +547,14 @@ if __name__ == "__main__":
 		testing_indices = k_folds[i][1]
 
 		# Extract features for training and testing examples
-		training_features = extract_features(data, training_indices)
-		testing_features = extract_features(data, testing_indices)
+		if dataset_name == "AllArith":
+			training_features = AllArithDataset.extract_features(data, training_indices)
+			testing_features = AllArithDataset.extract_features(data, testing_indices)
+		else:
+			training_features = extract_features(data, training_indices)
+			testing_features = extract_features(data, testing_indices)
+
+		sys.exit(1)
 
 		# Train the structured perceptron in order to learn the weights
 		feature_weights, training_accuracy = train(training_features, dataset_name)
@@ -553,4 +566,4 @@ if __name__ == "__main__":
 
 	print("Testing accuracy: " + str(accuracy / len(accuracy_per_fold)))
 	print("Accuracy per fold: " + str(accuracy_per_fold))
-	print("Training accuracy per fold: " + str(training_accuracy))
+	print("Training accuracy per iteration: " + str(training_accuracy))
