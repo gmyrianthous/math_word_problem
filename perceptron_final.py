@@ -12,6 +12,7 @@ from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.tag.perceptron import PerceptronTagger
 from nltk.parse.stanford import StanfordDependencyParser
 import AllArithDataset
+import string
 
 # Paths for NLTK models
 path_to_jar = 'stanford-corenlp-full-2017-06-09/stanford-corenlp-3.8.0.jar' 
@@ -261,6 +262,7 @@ def extract_features(data, indices):
 				else:
 					features['asksHowMuch:False_resultType:float'] += 1			
 
+
 			# Add the features into the dictionary
 			id_features_dict[index] = {}
 			id_features_dict[index]['features'] = features
@@ -275,7 +277,6 @@ def extract_features(data, indices):
 			id_features_dict[index]['previousWords'] = previous_words
 			id_features_dict[index]['nextWords'] = next_words
 
- 
 	return id_features_dict
 
 # Initialise the feature weights
@@ -304,7 +305,7 @@ def shuffle_data(data):
 
 # Function that produces all the possible combinations of the template
 # Total: 96 operations
-def get_equation_combinations(dataset_name):
+def get_equation_combinations(dataset_name, numbers):
 	if dataset_name == "MultiArith":
 		symbol = ['a', 'b', 'c']
 		op = ['+', '-', '/', '*']
@@ -322,7 +323,18 @@ def get_equation_combinations(dataset_name):
 		for symbols in itertools.permutations(symbol):
 		    for ops in itertools.product(op, repeat=1):
 		        combinations.append("%s %s %s" % (
-		            symbols[0], ops[0], symbols[1]))		
+		            symbols[0], ops[0], symbols[1]))
+	elif dataset_name == "AllArith":
+		# Unknown number of parameters
+		symbol = list(string.ascii_lowercase[:len(numbers)])	
+		op = ['+', '-', '/', '*']
+
+		combinations = []
+		for symbols in itertools.permutations(symbol):
+		    for ops in itertools.product(op, repeat=len(symbol)-1):
+		        to_format = "{}" * (2 * len(symbol) - 1)
+		        #print(to_format.format(*[x for y in itertools.zip_longest(symbols, ops, fillvalue=None) for x in y]))
+		        combinations.append(to_format.format(*[x for y in itertools.zip_longest(symbols, ops, fillvalue=None) for x in y]))
 
 	return combinations
 
@@ -410,7 +422,7 @@ def argmax(problem, weights, dataset_name):
 	question = problem['question']
 
 	# Get the possible combinations
-	combinations = get_equation_combinations(dataset_name)
+	combinations = get_equation_combinations(dataset_name, numbers)
 
 	# Construct each combination and compute the features and score for each. 
 	max_dot = None 
@@ -418,7 +430,6 @@ def argmax(problem, weights, dataset_name):
 	max_combination = None
 
 	for combination in combinations:
-
 		# Fill in current combination
 		combination_filled_in = ""
 
@@ -429,10 +440,18 @@ def argmax(problem, weights, dataset_name):
 				combination_filled_in += str(numbers[1])
 			elif char == 'c':
 				combination_filled_in += str(numbers[2])
+			elif char == 'd':
+				combination_filled_in += str(numbers[3])
+			elif char == 'e':
+				combination_filled_in += str(numbers[4])
 			else:
 				combination_filled_in += char	
 
+
 		# Extract features for the current combination
+		#if dataset_name == "AllArith":
+		#	combination_features = AllArithDataset.extract_combination_features(problem, combination_filled_in)
+		#else:
 		combination_features = extract_combination_features(problem, combination_filled_in)
 
 		combination_result = eval(combination_filled_in)
@@ -521,7 +540,7 @@ def test(data, weights, dataset_name, debugging=False):
 			incorrect_problems.append(question)
 
 	accuracy = correct_counter / len(data) * 100
-	print(incorrect_problems)
+	#print(incorrect_problems)
 	return accuracy
 
 if __name__ == "__main__":
@@ -554,10 +573,11 @@ if __name__ == "__main__":
 			training_features = extract_features(data, training_indices)
 			testing_features = extract_features(data, testing_indices)
 
-		sys.exit(1)
 
 		# Train the structured perceptron in order to learn the weights
 		feature_weights, training_accuracy = train(training_features, dataset_name)
+
+		#sys.exit(1)
 
 		# Test the perceptron
 		curr_accuracy = test(testing_features, feature_weights, dataset_name)
