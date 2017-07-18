@@ -1,0 +1,4 @@
+Average results for 10 folds
+MWEs: P=0.58 R=0.54 F=55.53 %
+Supersenses: P=0.60 R=0.58 F=59.37 %
+Combined: Acc=0.80 P=0.60 R=0.58 F=58.86 %

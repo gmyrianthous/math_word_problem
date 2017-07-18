@@ -1,0 +1,116 @@
+% MSc in Data Analytics - Dissertation
+% Giorgos Myrianthous
+% University of Sheffield
+
+\documentclass[11pt,oneside]{book}
+\usepackage[table]{xcolor}
+\usepackage[margin=1.2in]{geometry}
+\usepackage{setspace}
+\usepackage[toc,page]{appendix}
+\usepackage[none]{hyphenat} % turn hyphenation off by default
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{caption}
+\usepackage{pgf}
+\usepackage{tikz}
+\usepackage{relsize}
+\usetikzlibrary{matrix,chains,positioning,decorations.pathreplacing,arrows,automata}
+\usepackage{url}
+\usepackage{framed}
+\usepackage{tabularx}
+\usepackage{blindtext}
+\usepackage{pgfgantt}
+\usepackage{rotating}
+\usepackage{lscape}
+\usepackage{float}
+\usepackage{fancybox}
+\usepackage{soul}
+\usepackage{amsmath}
+\usepackage{multirow}
+\usepackage{adjustbox}
+\usepackage[graphicx]{realboxes}  
+\usepackage[framemethod=tikz]{mdframed}
+
+\newcommand{\dimsum}{\texttt{DiMSUM} }
+
+\begin{document}
+
+\frontmatter
+
+\begin{titlepage}
+
+\begin{center}
+{\LARGE The University of Sheffield}\\[0.5cm]
+{\LARGE Department of Computer Science}\\[1.5cm]
+
+\linespread{1.2}\huge {\bfseries Strucutred prediction for arithmetic math problems}\\[1.5cm]
+\linespread{1}
+\includegraphics[width=5cm]{images/tuoslogo.png}\\[1cm]
+{\Large Giorgos Myrianthous}\\[0.2cm]
+{\large \emph{Supervisor:} Dr. Andreas Vlachos}\\[2cm]
+\large This report is submitted in partial fulfilment  of the requirement\\ for the degree of MSc in Data Analytics by Giorgos Myrianthous.\\[1.0cm] 
+
+\today
+\end{center}
+
+\end{titlepage}
+
+% -------------------------------------------------------------------
+% Declaration
+% -------------------------------------------------------------------
+
+\newpage
+\chapter*{\Large Declaration}
+
+\setstretch{1.1} % set the line spacing differently if you wish, but this looks good to me. 
+
+All sentences or passages quoted in this report from other people's work have been specifically acknowledged by clear cross-referencing to author, work and page(s). Any illustrations that are not the work of the author of this report have been used with the explicit permission of the originator and are specifically acknowledged. I understand that failure to do this amounts to plagiarism and will be considered grounds for failure in this project and the degree examination as a whole.\\[1cm]
+
+\noindent Name:\\[1mm]
+\rule[1em]{25em}{0.5pt}
+
+\noindent Signature:\\[1mm]
+\rule[1em]{25em}{0.5pt}
+
+\noindent Date:\\[1mm]
+\rule[1em]{25em}{0.5pt}
+
+% -------------------------------------------------------------------
+% Abstract
+% -------------------------------------------------------------------
+
+\input{chapters/abstract.tex}
+
+% -------------------------------------------------------------------
+% Acknowledgements
+% -------------------------------------------------------------------
+
+\input{chapters/acknowledgements.tex}
+
+% -------------------------------------------------------------------
+% TOC etc
+% -------------------------------------------------------------------
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+\setstretch{1.1} 
+
+\mainmatter
+
+\input{chapters/chapter1.tex}
+\input{chapters/chapter2.tex}
+\input{chapters/chapter3.tex}
+\input{chapters/chapter4.tex}
+\input{chapters/chapter5.tex}
+\input{chapters/chapter6.tex}
+
+\bibliographystyle{apalike}
+\bibliography{dissertation,library} 
+\nocite{*}
+
+\begin{appendices}
+\input{chapters/appendix.tex}
+\end{appendices}
+\end{document}

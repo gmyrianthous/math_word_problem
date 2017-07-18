@@ -1,0 +1,76 @@
+===============================================================================
+DiMSIM Data Statistics Training Sentences
+===============================================================================
+Quantity of Sentences: 4799
+Quantity of MWEs: 4128
+Quantity of Supersenses: 22454
+Quantity of Sentences with MWEs: 2572
+Average MWE Length: 1.60
+Quantity of Supersense Head types (n./v.)
+  n 12591
+  v 9863
+Quantity of MWE Supersense Head types (n./v.)
+  n 1930
+  v 1163
+Quantities of POS tag heads per MWE Head type (n./v.)
+  n : PROPN : 908
+  n : NOUN : 692
+  n : ADJ : 180
+  n : DET : 55
+  n : NUM : 46
+  n : VERB : 32
+  n : PRON : 5
+  n : X : 4
+  n : ADP : 4
+  n : ADV : 3
+  n : CONJ : 1
+  v : VERB : 1117
+  v : AUX : 17
+  v : NOUN : 14
+  v : ADV : 5
+  v : X : 4
+  v : PRON : 3
+  v : PART : 2
+  v : DET : 1
+Quantities of Supersenses in all sentences combined
+  v.stative : 3357
+  n.person : 1867
+  n.group : 1750
+  v.cognition : 1310
+  n.artifact : 1226
+  v.communication : 1225
+  n.time : 1173
+  v.social : 1073
+  n.act : 902
+  n.communication : 886
+  n.location : 845
+  n.cognition : 835
+  n.food : 830
+  v.motion : 765
+  n.event : 650
+  v.change : 539
+  v.emotion : 414
+  v.possession : 398
+  n.possession : 386
+  n.attribute : 311
+  v.perception : 241
+  n.quantity : 161
+  v.body : 153
+  n.body : 153
+  n.state : 122
+  n.animal : 122
+  v.creation : 117
+  v.consumption : 114
+  v.contact : 104
+  n.feeling : 68
+  n.natural_object : 62
+  n.substance : 52
+  v.competition : 51
+  n.phenomenon : 46
+  n.relation : 40
+  n.motive : 35
+  n.process : 29
+  n.other : 23
+  n.plant : 10
+  n.shape : 7
+  v.weather : 2

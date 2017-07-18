@@ -1,0 +1,558 @@
+===============================================================================
+:: RUNNING BASELINE SYSTEMS ::
+=============================================================================== 
+
+:: Making training sentence data from file /home/nathan/data/DIMSUM/dimsum-data/dimsum16.train ::
+:: Making testing sentence data from file /home/nathan/data/DIMSUM/dimsum-data/dimsum16.test.blind ::
+:: Running predictions for training and testing files ::
+:: Baseline 1 ::
+ Force retrain set
+ Making CRF for MWE tags (BIO tags)
+  setting features to Lemma and POS tags
+  setting label to MWE tags (BIO tags)
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for MWE tags (BIO tags)
+ Training CRF for MWE tags (BIO tags)
+ Predicting MWE tags with test sentences using CRF for MWE tags (BIO tags)
+ Making CRF for Supersense tags
+  setting features to Lemma, POS and MWE tags
+  setting label to Supersense tags
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for Supersense tags
+ Training CRF for Supersense tags
+ Making new test sentences with previous MWE tag predictions
+ Predicting Supersense tags with updated test sentences using CRF for Supersense tags
+:: Baseline 2 ::
+ Force retrain set
+ Making CRF for MWE tags (BIO tags)
+  setting features to Lemma and POS tags
+  setting label to MWE tags (BIO tags)
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for MWE tags (BIO tags)
+ Training CRF for MWE tags (BIO tags)
+ Predicting MWE tags with test sentences using CRF for MWE tags (BIO tags)
+ Making CRF for Supersense tags
+  setting features to Lemma, POS and MWE tags
+  setting label to Supersense tags
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for Supersense tags
+ Training CRF for Supersense tags
+ Making new test sentences with previous MWE tag predictions
+ Predicting Supersense tags with updated test sentences using CRF for Supersense tags
+:: Baseline 3 ::
+ Force retrain set
+ Making CRF for MWE+Supersense tags
+  setting features to Lemma and POS tags
+  setting label to MWE+Supersense tags
+  setting feature context limits
+ Extracting features and adding training sentences to CRF
+ Training CRF
+ Predicting MWE tags with test sentences using CRF
+ Making new test sentences with previous MWE tag predictions
+:: Writing results for baseline to b1_predictions_baseline.csv ::
+:: Writing results for baseline to b2_predictions_baseline.csv ::
+:: Writing results for baseline to b3_predictions_baseline.csv ::
+:: Running K-Fold tests using training sentences and exporting to files ::
+ Using prediction function <function b1_predict_dimsum_sentences at 0x7f019f302598>
+ Splitting fold 1 and saving predicted sentences
+ Force retrain set
+ Making CRF for MWE tags (BIO tags)
+  setting features to Lemma and POS tags
+  setting label to MWE tags (BIO tags)
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for MWE tags (BIO tags)
+ Training CRF for MWE tags (BIO tags)
+ Predicting MWE tags with test sentences using CRF for MWE tags (BIO tags)
+ Making CRF for Supersense tags
+  setting features to Lemma, POS and MWE tags
+  setting label to Supersense tags
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for Supersense tags
+ Training CRF for Supersense tags
+ Making new test sentences with previous MWE tag predictions
+ Predicting Supersense tags with updated test sentences using CRF for Supersense tags
+ Splitting fold 2 and saving predicted sentences
+ Force retrain set
+ Making CRF for MWE tags (BIO tags)
+  setting features to Lemma and POS tags
+  setting label to MWE tags (BIO tags)
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for MWE tags (BIO tags)
+ Training CRF for MWE tags (BIO tags)
+ Predicting MWE tags with test sentences using CRF for MWE tags (BIO tags)
+ Making CRF for Supersense tags
+  setting features to Lemma, POS and MWE tags
+  setting label to Supersense tags
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for Supersense tags
+ Training CRF for Supersense tags
+ Making new test sentences with previous MWE tag predictions
+ Predicting Supersense tags with updated test sentences using CRF for Supersense tags
+ Splitting fold 3 and saving predicted sentences
+ Force retrain set
+ Making CRF for MWE tags (BIO tags)
+  setting features to Lemma and POS tags
+  setting label to MWE tags (BIO tags)
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for MWE tags (BIO tags)
+ Training CRF for MWE tags (BIO tags)
+ Predicting MWE tags with test sentences using CRF for MWE tags (BIO tags)
+ Making CRF for Supersense tags
+  setting features to Lemma, POS and MWE tags
+  setting label to Supersense tags
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for Supersense tags
+ Training CRF for Supersense tags
+ Making new test sentences with previous MWE tag predictions
+ Predicting Supersense tags with updated test sentences using CRF for Supersense tags
+ Splitting fold 4 and saving predicted sentences
+ Force retrain set
+ Making CRF for MWE tags (BIO tags)
+  setting features to Lemma and POS tags
+  setting label to MWE tags (BIO tags)
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for MWE tags (BIO tags)
+ Training CRF for MWE tags (BIO tags)
+ Predicting MWE tags with test sentences using CRF for MWE tags (BIO tags)
+ Making CRF for Supersense tags
+  setting features to Lemma, POS and MWE tags
+  setting label to Supersense tags
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for Supersense tags
+ Training CRF for Supersense tags
+ Making new test sentences with previous MWE tag predictions
+ Predicting Supersense tags with updated test sentences using CRF for Supersense tags
+ Splitting fold 5 and saving predicted sentences
+ Force retrain set
+ Making CRF for MWE tags (BIO tags)
+  setting features to Lemma and POS tags
+  setting label to MWE tags (BIO tags)
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for MWE tags (BIO tags)
+ Training CRF for MWE tags (BIO tags)
+ Predicting MWE tags with test sentences using CRF for MWE tags (BIO tags)
+ Making CRF for Supersense tags
+  setting features to Lemma, POS and MWE tags
+  setting label to Supersense tags
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for Supersense tags
+ Training CRF for Supersense tags
+ Making new test sentences with previous MWE tag predictions
+ Predicting Supersense tags with updated test sentences using CRF for Supersense tags
+ Splitting fold 6 and saving predicted sentences
+ Force retrain set
+ Making CRF for MWE tags (BIO tags)
+  setting features to Lemma and POS tags
+  setting label to MWE tags (BIO tags)
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for MWE tags (BIO tags)
+ Training CRF for MWE tags (BIO tags)
+ Predicting MWE tags with test sentences using CRF for MWE tags (BIO tags)
+ Making CRF for Supersense tags
+  setting features to Lemma, POS and MWE tags
+  setting label to Supersense tags
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for Supersense tags
+ Training CRF for Supersense tags
+ Making new test sentences with previous MWE tag predictions
+ Predicting Supersense tags with updated test sentences using CRF for Supersense tags
+ Splitting fold 7 and saving predicted sentences
+ Force retrain set
+ Making CRF for MWE tags (BIO tags)
+  setting features to Lemma and POS tags
+  setting label to MWE tags (BIO tags)
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for MWE tags (BIO tags)
+ Training CRF for MWE tags (BIO tags)
+ Predicting MWE tags with test sentences using CRF for MWE tags (BIO tags)
+ Making CRF for Supersense tags
+  setting features to Lemma, POS and MWE tags
+  setting label to Supersense tags
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for Supersense tags
+ Training CRF for Supersense tags
+ Making new test sentences with previous MWE tag predictions
+ Predicting Supersense tags with updated test sentences using CRF for Supersense tags
+ Splitting fold 8 and saving predicted sentences
+ Force retrain set
+ Making CRF for MWE tags (BIO tags)
+  setting features to Lemma and POS tags
+  setting label to MWE tags (BIO tags)
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for MWE tags (BIO tags)
+ Training CRF for MWE tags (BIO tags)
+ Predicting MWE tags with test sentences using CRF for MWE tags (BIO tags)
+ Making CRF for Supersense tags
+  setting features to Lemma, POS and MWE tags
+  setting label to Supersense tags
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for Supersense tags
+ Training CRF for Supersense tags
+ Making new test sentences with previous MWE tag predictions
+ Predicting Supersense tags with updated test sentences using CRF for Supersense tags
+ Splitting fold 9 and saving predicted sentences
+ Force retrain set
+ Making CRF for MWE tags (BIO tags)
+  setting features to Lemma and POS tags
+  setting label to MWE tags (BIO tags)
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for MWE tags (BIO tags)
+ Training CRF for MWE tags (BIO tags)
+ Predicting MWE tags with test sentences using CRF for MWE tags (BIO tags)
+ Making CRF for Supersense tags
+  setting features to Lemma, POS and MWE tags
+  setting label to Supersense tags
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for Supersense tags
+ Training CRF for Supersense tags
+ Making new test sentences with previous MWE tag predictions
+ Predicting Supersense tags with updated test sentences using CRF for Supersense tags
+ Splitting fold 10 and saving predicted sentences
+ Force retrain set
+ Making CRF for MWE tags (BIO tags)
+  setting features to Lemma and POS tags
+  setting label to MWE tags (BIO tags)
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for MWE tags (BIO tags)
+ Training CRF for MWE tags (BIO tags)
+ Predicting MWE tags with test sentences using CRF for MWE tags (BIO tags)
+ Making CRF for Supersense tags
+  setting features to Lemma, POS and MWE tags
+  setting label to Supersense tags
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for Supersense tags
+ Training CRF for Supersense tags
+ Making new test sentences with previous MWE tag predictions
+ Predicting Supersense tags with updated test sentences using CRF for Supersense tags
+ Writing results for gold fold 1 to results/b1_baseline.gold.fold1.csv
+ Writing results for pred fold 1 to results/b1_baseline.pred.fold1.csv
+ Writing results for gold fold 2 to results/b1_baseline.gold.fold2.csv
+ Writing results for pred fold 2 to results/b1_baseline.pred.fold2.csv
+ Writing results for gold fold 3 to results/b1_baseline.gold.fold3.csv
+ Writing results for pred fold 3 to results/b1_baseline.pred.fold3.csv
+ Writing results for gold fold 4 to results/b1_baseline.gold.fold4.csv
+ Writing results for pred fold 4 to results/b1_baseline.pred.fold4.csv
+ Writing results for gold fold 5 to results/b1_baseline.gold.fold5.csv
+ Writing results for pred fold 5 to results/b1_baseline.pred.fold5.csv
+ Writing results for gold fold 6 to results/b1_baseline.gold.fold6.csv
+ Writing results for pred fold 6 to results/b1_baseline.pred.fold6.csv
+ Writing results for gold fold 7 to results/b1_baseline.gold.fold7.csv
+ Writing results for pred fold 7 to results/b1_baseline.pred.fold7.csv
+ Writing results for gold fold 8 to results/b1_baseline.gold.fold8.csv
+ Writing results for pred fold 8 to results/b1_baseline.pred.fold8.csv
+ Writing results for gold fold 9 to results/b1_baseline.gold.fold9.csv
+ Writing results for pred fold 9 to results/b1_baseline.pred.fold9.csv
+ Writing results for gold fold 10 to results/b1_baseline.gold.fold10.csv
+ Writing results for pred fold 10 to results/b1_baseline.pred.fold10.csv
+ Using prediction function <function b2_predict_dimsum_sentences at 0x7f019f2f2950>
+ Splitting fold 1 and saving predicted sentences
+ Force retrain set
+ Making CRF for MWE tags (BIO tags)
+  setting features to Lemma and POS tags
+  setting label to MWE tags (BIO tags)
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for MWE tags (BIO tags)
+ Training CRF for MWE tags (BIO tags)
+ Predicting MWE tags with test sentences using CRF for MWE tags (BIO tags)
+ Making CRF for Supersense tags
+  setting features to Lemma, POS and MWE tags
+  setting label to Supersense tags
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for Supersense tags
+ Training CRF for Supersense tags
+ Making new test sentences with previous MWE tag predictions
+ Predicting Supersense tags with updated test sentences using CRF for Supersense tags
+ Splitting fold 2 and saving predicted sentences
+ Force retrain set
+ Making CRF for MWE tags (BIO tags)
+  setting features to Lemma and POS tags
+  setting label to MWE tags (BIO tags)
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for MWE tags (BIO tags)
+ Training CRF for MWE tags (BIO tags)
+ Predicting MWE tags with test sentences using CRF for MWE tags (BIO tags)
+ Making CRF for Supersense tags
+  setting features to Lemma, POS and MWE tags
+  setting label to Supersense tags
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for Supersense tags
+ Training CRF for Supersense tags
+ Making new test sentences with previous MWE tag predictions
+ Predicting Supersense tags with updated test sentences using CRF for Supersense tags
+ Splitting fold 3 and saving predicted sentences
+ Force retrain set
+ Making CRF for MWE tags (BIO tags)
+  setting features to Lemma and POS tags
+  setting label to MWE tags (BIO tags)
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for MWE tags (BIO tags)
+ Training CRF for MWE tags (BIO tags)
+ Predicting MWE tags with test sentences using CRF for MWE tags (BIO tags)
+ Making CRF for Supersense tags
+  setting features to Lemma, POS and MWE tags
+  setting label to Supersense tags
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for Supersense tags
+ Training CRF for Supersense tags
+ Making new test sentences with previous MWE tag predictions
+ Predicting Supersense tags with updated test sentences using CRF for Supersense tags
+ Splitting fold 4 and saving predicted sentences
+ Force retrain set
+ Making CRF for MWE tags (BIO tags)
+  setting features to Lemma and POS tags
+  setting label to MWE tags (BIO tags)
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for MWE tags (BIO tags)
+ Training CRF for MWE tags (BIO tags)
+ Predicting MWE tags with test sentences using CRF for MWE tags (BIO tags)
+ Making CRF for Supersense tags
+  setting features to Lemma, POS and MWE tags
+  setting label to Supersense tags
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for Supersense tags
+ Training CRF for Supersense tags
+ Making new test sentences with previous MWE tag predictions
+ Predicting Supersense tags with updated test sentences using CRF for Supersense tags
+ Splitting fold 5 and saving predicted sentences
+ Force retrain set
+ Making CRF for MWE tags (BIO tags)
+  setting features to Lemma and POS tags
+  setting label to MWE tags (BIO tags)
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for MWE tags (BIO tags)
+ Training CRF for MWE tags (BIO tags)
+ Predicting MWE tags with test sentences using CRF for MWE tags (BIO tags)
+ Making CRF for Supersense tags
+  setting features to Lemma, POS and MWE tags
+  setting label to Supersense tags
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for Supersense tags
+ Training CRF for Supersense tags
+ Making new test sentences with previous MWE tag predictions
+ Predicting Supersense tags with updated test sentences using CRF for Supersense tags
+ Splitting fold 6 and saving predicted sentences
+ Force retrain set
+ Making CRF for MWE tags (BIO tags)
+  setting features to Lemma and POS tags
+  setting label to MWE tags (BIO tags)
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for MWE tags (BIO tags)
+ Training CRF for MWE tags (BIO tags)
+ Predicting MWE tags with test sentences using CRF for MWE tags (BIO tags)
+ Making CRF for Supersense tags
+  setting features to Lemma, POS and MWE tags
+  setting label to Supersense tags
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for Supersense tags
+ Training CRF for Supersense tags
+ Making new test sentences with previous MWE tag predictions
+ Predicting Supersense tags with updated test sentences using CRF for Supersense tags
+ Splitting fold 7 and saving predicted sentences
+ Force retrain set
+ Making CRF for MWE tags (BIO tags)
+  setting features to Lemma and POS tags
+  setting label to MWE tags (BIO tags)
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for MWE tags (BIO tags)
+ Training CRF for MWE tags (BIO tags)
+ Predicting MWE tags with test sentences using CRF for MWE tags (BIO tags)
+ Making CRF for Supersense tags
+  setting features to Lemma, POS and MWE tags
+  setting label to Supersense tags
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for Supersense tags
+ Training CRF for Supersense tags
+ Making new test sentences with previous MWE tag predictions
+ Predicting Supersense tags with updated test sentences using CRF for Supersense tags
+ Splitting fold 8 and saving predicted sentences
+ Force retrain set
+ Making CRF for MWE tags (BIO tags)
+  setting features to Lemma and POS tags
+  setting label to MWE tags (BIO tags)
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for MWE tags (BIO tags)
+ Training CRF for MWE tags (BIO tags)
+ Predicting MWE tags with test sentences using CRF for MWE tags (BIO tags)
+ Making CRF for Supersense tags
+  setting features to Lemma, POS and MWE tags
+  setting label to Supersense tags
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for Supersense tags
+ Training CRF for Supersense tags
+ Making new test sentences with previous MWE tag predictions
+ Predicting Supersense tags with updated test sentences using CRF for Supersense tags
+ Splitting fold 9 and saving predicted sentences
+ Force retrain set
+ Making CRF for MWE tags (BIO tags)
+  setting features to Lemma and POS tags
+  setting label to MWE tags (BIO tags)
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for MWE tags (BIO tags)
+ Training CRF for MWE tags (BIO tags)
+ Predicting MWE tags with test sentences using CRF for MWE tags (BIO tags)
+ Making CRF for Supersense tags
+  setting features to Lemma, POS and MWE tags
+  setting label to Supersense tags
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for Supersense tags
+ Training CRF for Supersense tags
+ Making new test sentences with previous MWE tag predictions
+ Predicting Supersense tags with updated test sentences using CRF for Supersense tags
+ Splitting fold 10 and saving predicted sentences
+ Force retrain set
+ Making CRF for MWE tags (BIO tags)
+  setting features to Lemma and POS tags
+  setting label to MWE tags (BIO tags)
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for MWE tags (BIO tags)
+ Training CRF for MWE tags (BIO tags)
+ Predicting MWE tags with test sentences using CRF for MWE tags (BIO tags)
+ Making CRF for Supersense tags
+  setting features to Lemma, POS and MWE tags
+  setting label to Supersense tags
+  setting feature context limits
+ Extracting features and adding training sentences to CRF for Supersense tags
+ Training CRF for Supersense tags
+ Making new test sentences with previous MWE tag predictions
+ Predicting Supersense tags with updated test sentences using CRF for Supersense tags
+ Writing results for gold fold 1 to results/b2_baseline.gold.fold1.csv
+ Writing results for pred fold 1 to results/b2_baseline.pred.fold1.csv
+ Writing results for gold fold 2 to results/b2_baseline.gold.fold2.csv
+ Writing results for pred fold 2 to results/b2_baseline.pred.fold2.csv
+ Writing results for gold fold 3 to results/b2_baseline.gold.fold3.csv
+ Writing results for pred fold 3 to results/b2_baseline.pred.fold3.csv
+ Writing results for gold fold 4 to results/b2_baseline.gold.fold4.csv
+ Writing results for pred fold 4 to results/b2_baseline.pred.fold4.csv
+ Writing results for gold fold 5 to results/b2_baseline.gold.fold5.csv
+ Writing results for pred fold 5 to results/b2_baseline.pred.fold5.csv
+ Writing results for gold fold 6 to results/b2_baseline.gold.fold6.csv
+ Writing results for pred fold 6 to results/b2_baseline.pred.fold6.csv
+ Writing results for gold fold 7 to results/b2_baseline.gold.fold7.csv
+ Writing results for pred fold 7 to results/b2_baseline.pred.fold7.csv
+ Writing results for gold fold 8 to results/b2_baseline.gold.fold8.csv
+ Writing results for pred fold 8 to results/b2_baseline.pred.fold8.csv
+ Writing results for gold fold 9 to results/b2_baseline.gold.fold9.csv
+ Writing results for pred fold 9 to results/b2_baseline.pred.fold9.csv
+ Writing results for gold fold 10 to results/b2_baseline.gold.fold10.csv
+ Writing results for pred fold 10 to results/b2_baseline.pred.fold10.csv
+ Using prediction function <function b3_predict_dimsum_sentences at 0x7f019f2f29d8>
+ Splitting fold 1 and saving predicted sentences
+ Force retrain set
+ Making CRF for MWE+Supersense tags
+  setting features to Lemma and POS tags
+  setting label to MWE+Supersense tags
+  setting feature context limits
+ Extracting features and adding training sentences to CRF
+ Training CRF
+ Predicting MWE tags with test sentences using CRF
+ Making new test sentences with previous MWE tag predictions
+ Splitting fold 2 and saving predicted sentences
+ Force retrain set
+ Making CRF for MWE+Supersense tags
+  setting features to Lemma and POS tags
+  setting label to MWE+Supersense tags
+  setting feature context limits
+ Extracting features and adding training sentences to CRF
+ Training CRF
+ Predicting MWE tags with test sentences using CRF
+ Making new test sentences with previous MWE tag predictions
+ Splitting fold 3 and saving predicted sentences
+ Force retrain set
+ Making CRF for MWE+Supersense tags
+  setting features to Lemma and POS tags
+  setting label to MWE+Supersense tags
+  setting feature context limits
+ Extracting features and adding training sentences to CRF
+ Training CRF
+ Predicting MWE tags with test sentences using CRF
+ Making new test sentences with previous MWE tag predictions
+ Splitting fold 4 and saving predicted sentences
+ Force retrain set
+ Making CRF for MWE+Supersense tags
+  setting features to Lemma and POS tags
+  setting label to MWE+Supersense tags
+  setting feature context limits
+ Extracting features and adding training sentences to CRF
+ Training CRF
+ Predicting MWE tags with test sentences using CRF
+ Making new test sentences with previous MWE tag predictions
+ Splitting fold 5 and saving predicted sentences
+ Force retrain set
+ Making CRF for MWE+Supersense tags
+  setting features to Lemma and POS tags
+  setting label to MWE+Supersense tags
+  setting feature context limits
+ Extracting features and adding training sentences to CRF
+ Training CRF
+ Predicting MWE tags with test sentences using CRF
+ Making new test sentences with previous MWE tag predictions
+ Splitting fold 6 and saving predicted sentences
+ Force retrain set
+ Making CRF for MWE+Supersense tags
+  setting features to Lemma and POS tags
+  setting label to MWE+Supersense tags
+  setting feature context limits
+ Extracting features and adding training sentences to CRF
+ Training CRF
+ Predicting MWE tags with test sentences using CRF
+ Making new test sentences with previous MWE tag predictions
+ Splitting fold 7 and saving predicted sentences
+ Force retrain set
+ Making CRF for MWE+Supersense tags
+  setting features to Lemma and POS tags
+  setting label to MWE+Supersense tags
+  setting feature context limits
+ Extracting features and adding training sentences to CRF
+ Training CRF
+ Predicting MWE tags with test sentences using CRF
+ Making new test sentences with previous MWE tag predictions
+ Splitting fold 8 and saving predicted sentences
+ Force retrain set
+ Making CRF for MWE+Supersense tags
+  setting features to Lemma and POS tags
+  setting label to MWE+Supersense tags
+  setting feature context limits
+ Extracting features and adding training sentences to CRF
+ Training CRF
+ Predicting MWE tags with test sentences using CRF
+ Making new test sentences with previous MWE tag predictions
+ Splitting fold 9 and saving predicted sentences
+ Force retrain set
+ Making CRF for MWE+Supersense tags
+  setting features to Lemma and POS tags
+  setting label to MWE+Supersense tags
+  setting feature context limits
+ Extracting features and adding training sentences to CRF
+ Training CRF
+ Predicting MWE tags with test sentences using CRF
+ Making new test sentences with previous MWE tag predictions
+ Splitting fold 10 and saving predicted sentences
+ Force retrain set
+ Making CRF for MWE+Supersense tags
+  setting features to Lemma and POS tags
+  setting label to MWE+Supersense tags
+  setting feature context limits
+ Extracting features and adding training sentences to CRF
+ Training CRF
+ Predicting MWE tags with test sentences using CRF
+ Making new test sentences with previous MWE tag predictions
+ Writing results for gold fold 1 to results/b3_baseline.gold.fold1.csv
+ Writing results for pred fold 1 to results/b3_baseline.pred.fold1.csv
+ Writing results for gold fold 2 to results/b3_baseline.gold.fold2.csv
+ Writing results for pred fold 2 to results/b3_baseline.pred.fold2.csv
+ Writing results for gold fold 3 to results/b3_baseline.gold.fold3.csv
+ Writing results for pred fold 3 to results/b3_baseline.pred.fold3.csv
+ Writing results for gold fold 4 to results/b3_baseline.gold.fold4.csv
+ Writing results for pred fold 4 to results/b3_baseline.pred.fold4.csv
+ Writing results for gold fold 5 to results/b3_baseline.gold.fold5.csv
+ Writing results for pred fold 5 to results/b3_baseline.pred.fold5.csv
+ Writing results for gold fold 6 to results/b3_baseline.gold.fold6.csv
+ Writing results for pred fold 6 to results/b3_baseline.pred.fold6.csv
+ Writing results for gold fold 7 to results/b3_baseline.gold.fold7.csv
+ Writing results for pred fold 7 to results/b3_baseline.pred.fold7.csv
+ Writing results for gold fold 8 to results/b3_baseline.gold.fold8.csv
+ Writing results for pred fold 8 to results/b3_baseline.pred.fold8.csv
+ Writing results for gold fold 9 to results/b3_baseline.gold.fold9.csv
+ Writing results for pred fold 9 to results/b3_baseline.pred.fold9.csv
+ Writing results for gold fold 10 to results/b3_baseline.gold.fold10.csv
+ Writing results for pred fold 10 to results/b3_baseline.pred.fold10.csv

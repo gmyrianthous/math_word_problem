@@ -1,0 +1,201 @@
+\chapter{Appendix}\label{appendix}
+
+\section{Data}\label{appendixdata}
+
+The original \dimsum task data can be viewed at \cite{dimsum16webdata}. The data splits were to provided a methodology for using the training data \texttt{dimsum16.train} for optimising systems without viewing testing data. 
+
+The data file \texttt{dimsum16.train} was split into two different ways:
+\begin{enumerate}
+  \setlength{\itemsep}{0pt}
+  \setlength{\parskip}{0pt}
+\item {60\% train, 20\% test, 20\% dev}
+\item {80\% train, 20\% dev}
+\end{enumerate}
+
+The final 20\% of the development data is the same data in both splits, but the initial 80\% is used differently in both sets. Viewing the splits in an alternative way can be seen below in Table \ref{tab:datasplitsdimsum16train}.
+
+\begin{table}[H]
+  \small
+  \centering
+  \begin{tabular}{|cccccc|}
+    \hline
+    {\bf Percentages Used} & \multicolumn{5}{|c|}{\bf Filename(s)}\\
+    \hline
+    \texttt{100} & \multicolumn{5}{|c|}{dimsum16.train}\\
+    \hline
+    \texttt{60/20/20} & \multicolumn{3}{|c|}{dimsum16.train.60.train} & \multicolumn{1}{|c|}{dimsum16.train.20.test} & \multicolumn{1}{|c|}{dimsum16.train.20.dev}\\
+    \hline
+    \texttt{80/20/-} & \multicolumn{4}{|c|}{dimsum16.train.80.train} & \multicolumn{1}{|c|}{dimsum16.train.20.dev}\\
+    \hline
+  \end{tabular}
+  \caption{Data splits of dimsum16.train}
+  \label{tab:datasplitsdimsum16train}
+\end{table}
+
+The \texttt{60/20/20} data split is only used in the Bi-LSTM-CRF for optimising parameters, while the second data split was used for testing both the baseline and receiving the final results in the Bi-LSTM-CRF accompanied by the testing data \texttt{dimsum16.test} for the final test results. 
+
+\section{Results}\label{appendixresults}
+
+\subsection{All final test results}
+
+Table \ref{tab:allsystemsfinalresults} shows all final results obtained from each system using the \texttt{dimsumeval.py} script provided with the data for the \dimsum task. 
+
+%Tables about data results
+%  CRF baseline full table with MWE SS accuracy and other results
+\begin{table}[H]
+  \small
+  \centering
+  \begin{tabular}{|l|lllllll|}
+    \multicolumn{2}{c}{} & \multicolumn{2}{c}{MWEs} & \multicolumn{2}{c}{Supersenses} & \multicolumn{2}{c}{Combined}\\  
+    \hline
+    \multirow{4}{*}{CRF Baseline 1} & Precision & 290/1115 & 0.2601  & 2247/4745 & 0.4736  & 2537/5860   & 0.4329 \\
+                                    & Recall    & 290/437  & 0.6636  & 2247/5060 & 0.4441  & 2537/5497   & 0.4615 \\
+                                    & F1-Score  &          & 37.37\% &           & 45.83\% &             & 44.68\%\\
+                                    & Accuracy  &          &         &           &         & 12558/16500 & 0.7629 \\
+    \hline
+    \multirow{4}{*}{CRF Baseline 2} & Precision & 290/1115 & 0.2601  & 2119/4745 & 0.4466  & 2409/5860   & 0.4111 \\
+                                    & Recall    & 290/437  & 0.6636  & 2119/4278 & 0.4953  & 2409/4715   & 0.5109 \\
+                                    & F1-Score  &          & 37.37\% &           & 46.97\% &             & 45.56\%\\
+                                    & Accuracy  &          &         &           &         & 12471/16500 & 0.7558 \\
+    \hline
+    \multirow{4}{*}{CRF Baseline 3} & Precision & 543/1115 & 0.4870  & 2218/4745 & 0.4674  & 2761/5860   & 0.4712 \\
+                                    & Recall    & 541/981  & 0.5515  & 2218/4691 & 0.4728  & 2759/5672   & 0.4864 \\
+                                    & F1-Score  &          & 51.72\% &           & 47.01\% &             & 47.87\%\\
+                                    & Accuracy  &          &         &           &         & 12728/16500 & 0.7714 \\
+    \hline
+    \multirow{4}{*}{Bi-LSTM-CRF}    & Precision & 435/755  & 0.5762  & 2541/4564 & 0.5567  & 2976/5319   & 0.5595 \\
+                                    & Recall    & 438/1115 & 0.3928  & 2541/4745 & 0.5355  & 2979/5960   & 0.5084 \\
+                                    & F1-Score  &          & 46.71\% &           & 54.59\% &             & 53.27\%\\
+                                    & Accuracy  &          &         &           &         & 12917/16500 & 0.7824 \\
+    \hline
+  \end{tabular}
+  \caption{Final results for all systems}
+  \label{tab:allsystemsfinalresults}
+\end{table}
+
+%  Bi-LSTM-CRF table with 60/20/20 tests for parameter optimizations
+\subsection{All optimisation tests}
+
+This section contains all 60/20/20 data split optimisation test results. Table \ref{tab:all602020optimisationtests} contains all results without pre-embeddings. Table \ref{tab:all602020optimisationtestsgn} contains all results with pre-embeddings where \texttt{<GN>} refers specifically to the file \texttt{GoogleNews-vectors-negative300.txt}.
+
+\begin{adjustbox}{rotate=90,height=\textheight,width=\textwidth}\label{tab:all602020optimisationtestsgn}
+\tiny
+\begin{tabular}{llllllllllllllllll}
+tag\_scheme & lower & zeros & char\_dim & char\_lstm\_dim & char\_bidirect & word\_dim & word\_lstm\_dim & word\_bidirect & pre\_emb & all\_emb & cap\_dim & crf & dropout & lr\_method & MWE F1 &  Supersense F1 &  Combined F1\\
+\hline
+generic & False & False & 25 & 25 & True & 300 & 300 & True & <GN> & False & 0 & True & 0.5 & sgd-lr\_.005 & 49.86 & 67.92 & 64.71\\
+generic & False & False & 10 & 20 & True & 300 & 100 & True & <GN> & True & 0 & True & 0.5 & sgd-lr\_.005 & 51.20 & 65.15 & 62.52\\
+generic & False & False & 5 & 5 & True & 300 & 100 & True & <GN> & False & 0 & True & 0.0 & sgd-lr\_.005 & 49.47 & 66.60 & 63.53\\
+generic & False & False & 5 & 5 & True & 300 & 200 & True & <GN> & False & 0 & True & 0.5 & sgd-lr\_.005 & 50.89 & 66.96 & 64.04\\
+generic & False & False & 10 & 30 & True & 300 & 100 & True & <GN> & False & 0 & True & 0.5 & sgd-lr\_.005 & 51.54 & 67.57 & 64.58\\
+generic & False & False & 10 & 20 & False & 300 & 100 & False & <GN> & False & 0 & True & 0.5 & sgd-lr\_.005 & 48.23 & 65.63 & 62.42\\
+generic & False & False & 30 & 30 & True & 300 & 100 & True & <GN> & False & 0 & True & 0.5 & sgd-lr\_.005 & 50.43 & 66.91 & 63.97\\
+generic & False & False & 10 & 20 & True & 300 & 100 & True & <GN> & False & 0 & False & 0.5 & sgd-lr\_.005 & nan & 43.25 & 37.27\\
+generic & False & False & 25 & 25 & True & 300 & 75 & True & <GN> & False & 0 & True & 0.5 & sgd-lr\_.005 & 50.62 & 66.63 & 63.80\\
+generic & False & False & 25 & 25 & True & 300 & 200 & True & <GN> & False & 0 & True & 0.0 & sgd-lr\_.005 & 41.49 & 66.14 & 62.15\\
+generic & False & False & 30 & 10 & True & 300 & 100 & True & <GN> & False & 0 & True & 0.5 & sgd-lr\_.005 & 50.39 & 66.61 & 63.77\\
+generic & False & False & 30 & 40 & True & 300 & 100 & True & <GN> & False & 0 & True & 0.5 & sgd-lr\_.005 & 51.51 & 67.36 & 64.48\\
+generic & False & False & 30 & 20 & True & 300 & 100 & True & <GN> & False & 0 & True & 0.5 & sgd-lr\_.005 & 54.10 & 67.02 & 64.60\\
+generic & False & False & 40 & 40 & True & 300 & 100 & True & <GN> & False & 0 & True & 0.5 & sgd-lr\_.005 & 52.80 & 67.16 & 64.48\\
+generic & False & False & 10 & 20 & False & 300 & 100 & True & <GN> & False & 0 & True & 0.5 & sgd-lr\_.005 & 51.26 & 66.74 & 63.92\\
+generic & False & False & 25 & 25 & True & 300 & 400 & True & <GN> & False & 0 & True & 0.5 & sgd-lr\_.005 & 51.14 & 67.75 & 64.59\\
+generic & False & False & 10 & 20 & True & 300 & 100 & True & <GN> & False & 0 & True & 0.5 & sgd-lr\_.005 & 51.07 & 66.95 & 64.10\\
+generic & False & False & 10 & 20 & True & 300 & 100 & True & <GN> & False & 0 & True & 0.5 & sgd-lr\_.0005 & 33.62 & 53.28 & 49.36\\
+generic & False & False & 25 & 25 & True & 300 & 50 & True & <GN> & False & 0 & True & 0.5 & sgd-lr\_.005 & 50.64 & 66.69 & 63.85\\
+generic & False & False & 25 & 25 & True & 300 & 100 & True & <GN> & False & 0 & True & 0.0 & sgd-lr\_.005 & 9.84 & 46.42 & 41.30\\
+generic & False & False & 25 & 25 & True & 300 & 100 & True & <GN> & False & 0 & True & 0.5 & sgd-lr\_.005 & 52.00 & 67.57 & 64.66\\
+generic & False & False & 40 & 30 & True & 300 & 100 & True & <GN> & False & 0 & True & 0.5 & sgd-lr\_.005 & 50.54 & 65.78 & 63.09\\
+generic & False & False & 25 & 25 & True & 300 & 600 & True & <GN> & False & 0 & True & 0.5 & sgd-lr\_.005 & 44.52 & 64.80 & 61.21\\
+generic & False & False & 10 & 40 & True & 300 & 100 & True & <GN> & False & 0 & True & 0.5 & sgd-lr\_.005 & 50.11 & 66.75 & 63.86\\
+generic & False & False & 25 & 25 & True & 300 & 500 & True & <GN> & False & 0 & True & 0.5 & sgd-lr\_.005 & 49.41 & 66.60 & 63.50\\
+generic & False & False & 40 & 20 & True & 300 & 100 & True & <GN> & False & 0 & True & 0.5 & sgd-lr\_.005 & 50.74 & 66.16 & 63.47\\
+generic & False & False & 5 & 5 & True & 300 & 300 & True & <GN> & False & 0 & True & 0.0 & sgd-lr\_.005 & 45.41 & 66.28 & 62.76\\
+generic & False & False & 10 & 20 & True & 300 & 100 & False & <GN> & False & 0 & True & 0.5 & sgd-lr\_.005 & 49.94 & 65.51 & 62.64\\
+generic & False & False & 5 & 5 & True & 300 & 200 & True & <GN> & False & 0 & True & 0.25 & sgd-lr\_.005 & 48.20 & 66.12 & 63.03\\
+generic & False & False & 25 & 25 & True & 300 & 300 & True & <GN> & False & 0 & True & 0.25 & sgd-lr\_.005 & 49.18 & 66.39 & 63.26\\
+generic & False & False & 20 & 20 & True & 300 & 100 & True & <GN> & False & 0 & True & 0.5 & sgd-lr\_.005 & 53.96 & 67.55 & 64.88\\
+generic & False & False & 5 & 5 & True & 300 & 100 & True & <GN> & False & 0 & True & 0.25 & sgd-lr\_.005 & 50.16 & nan & 63.54\\
+generic & False & False & 25 & 25 & True & 300 & 100 & True & <GN> & False & 0 & True & 0.25 & sgd-lr\_.005 & 49.29 & 67.23 & 63.63\\
+generic & False & False & 25 & 25 & True & 300 & 200 & True & <GN> & False & 0 & True & 0.5 & sgd-lr\_.005 & 49.62 & 66.60 & 63.55\\
+generic & False & False & 25 & 25 & True & 300 & 200 & True & <GN> & False & 0 & True & 0.25 & sgd-lr\_.005 & 43.40 & 66.72 & 62.82\\
+generic & False & False & 20 & 30 & True & 300 & 100 & True & <GN> & False & 0 & True & 0.5 & sgd-lr\_.005 & 48.93 & 66.51 & 63.51\\
+generic & False & False & 5 & 5 & True & 300 & 100 & True & <GN> & False & 0 & True & 0.5 & sgd-lr\_.005 & 53.48 & 66.54 & 64.00\\
+generic & False & False & 10 & 10 & True & 300 & 100 & True & <GN> & False & 0 & True & 0.5 & sgd-lr\_.005 & 47.92 & 67.23 & 63.90\\
+generic & False & False & 20 & 10 & True & 300 & 100 & True & <GN> & False & 0 & True & 0.5 & sgd-lr\_.005 & 52.22 & 66.76 & 63.97\\
+generic & False & False & 5 & 5 & True & 300 & 300 & True & <GN> & False & 0 & True & 0.25 & sgd-lr\_.005 & 49.46 & 66.50 & 63.46\\
+generic & False & False & 20 & 40 & True & 300 & 100 & True & <GN> & False & 0 & True & 0.5 & sgd-lr\_.005 & 52.18 & 67.10 & 64.39\\
+generic & False & False & 40 & 10 & True & 300 & 100 & True & <GN> & False & 0 & True & 0.5 & sgd-lr\_.005 & 50.93 & 67.08 & 64.16\\
+generic & False & False & 25 & 25 & True & 300 & 25 & True & <GN> & False & 0 & True & 0.5 & sgd-lr\_.005 & 50.69 & 65.20 & 62.52\\
+generic & False & False & 5 & 5 & True & 300 & 300 & True & <GN> & False & 0 & True & 0.5 & sgd-lr\_.005 & 50.46 & 67.62 & 64.50\\
+generic & False & False & 5 & 5 & True & 300 & 200 & True & <GN> & False & 0 & True & 0.0 & sgd-lr\_.005 & 48.05 & 65.67 & 62.60\\
+generic & False & False & 25 & 25 & True & 300 & 300 & True & <GN> & False & 0 & True & 0.0 & sgd-lr\_.005 & 48.19 & 66.57 & 63.21\\
+\end{tabular}
+\end{adjustbox}
+
+\begin{adjustbox}{rotate=90,height=\textheight,width=\textwidth}\label{tab:all602020optimisationtests}
+\tiny
+\begin{tabular}{llllllllllllllllll}
+tag\_scheme & lower & zeros & char\_dim & char\_lstm\_dim & char\_bidirect & word\_dim & word\_lstm\_dim & word\_bidirect & pre\_emb & all\_emb & cap\_dim & crf & dropout & lr\_method & MWE F1 &  Supersense F1 &  Combined F1\\
+\hline
+generic & False & False & 25 & 25 & True & 100 & 300 & True &  & False & 0 & True & 0.5 & sgd-lr\_.005 & 46.60 & 58.03 & 55.87\\
+generic & False & False & 5 & 5 & True & 100 & 300 & True &  & False & 0 & True & 0.0 & sgd-lr\_.005 & 46.07 & 57.75 & 55.54\\
+generic & False & False & 25 & 25 & True & 300 & 200 & True &  & False & 0 & True & 0.5 & sgd-lr\_.005 & 49.21 & 58.45 & 56.70\\
+generic & False & False & 25 & 25 & True & 300 & 100 & True &  & False & 0 & True & 0.25 & sgd-lr\_.005 & 44.12 & 58.00 & 55.60\\
+generic & False & False & 5 & 5 & True & 200 & 200 & True &  & False & 0 & True & 0.5 & sgd-lr\_.005 & 48.71 & 58.60 & 56.61\\
+generic & False & False & 5 & 5 & True & 300 & 100 & True &  & False & 0 & True & 0.0 & sgd-lr\_.005 & 47.45 & 55.44 & 53.87\\
+generic & False & False & 25 & 25 & True & 200 & 200 & True &  & False & 0 & True & 0.5 & sgd-lr\_.005 & 48.70 & 58.38 & 56.50\\
+generic & False & False & 5 & 5 & True & 200 & 100 & True &  & False & 0 & True & 0.5 & sgd-lr\_.005 & 46.56 & 57.13 & 55.16\\
+generic & False & False & 25 & 25 & True & 200 & 300 & True &  & False & 0 & True & 0.5 & sgd-lr\_.005 & 42.97 & 58.72 & 55.93\\
+generic & False & False & 25 & 25 & True & 200 & 100 & True &  & False & 0 & True & 0.5 & sgd-lr\_.005 & 49.85 & 57.50 & 55.96\\
+generic & False & False & 5 & 5 & True & 100 & 200 & True &  & False & 0 & True & 0.5 & sgd-lr\_.005 & 47.39 & 57.59 & 55.49\\
+generic & False & False & 25 & 25 & True & 300 & 100 & True &  & False & 0 & True & 0.5 & sgd-lr\_.005 & 43.50 & 58.01 & 55.52\\
+generic & False & False & 25 & 25 & True & 100 & 200 & True &  & False & 0 & True & 0.5 & sgd-lr\_.005 & 47.50 & 58.09 & 56.14\\
+generic & False & False & 5 & 5 & True & 300 & 200 & True &  & False & 0 & True & 0.0 & sgd-lr\_.005 & 43.79 & 57.78 & 55.13\\
+generic & False & False & 25 & 25 & True & 300 & 300 & True &  & False & 0 & True & 0.0 & sgd-lr\_.005 & 42.68 & 55.98 & 53.79\\
+generic & False & False & 25 & 25 & True & 100 & 100 & True &  & False & 0 & True & 0.5 & sgd-lr\_.005 & 49.71 & 57.85 & 56.21\\
+generic & False & False & 5 & 5 & True & 300 & 100 & True &  & False & 0 & True & 0.5 & sgd-lr\_.005 & 46.36 & 57.92 & 55.55\\
+generic & False & False & 25 & 25 & True & 200 & 200 & True &  & False & 0 & True & 0.25 & sgd-lr\_.005 & 50.22 & 56.78 & 55.55\\
+generic & False & False & 25 & 25 & True & 300 & 100 & True &  & False & 0 & True & 0.0 & sgd-lr\_.005 & 46.35 & 56.73 & 54.82\\
+generic & False & False & 5 & 5 & True & 200 & 300 & True &  & False & 0 & True & 0.25 & sgd-lr\_.005 & 48.33 & 58.23 & 56.30\\
+generic & False & False & 25 & 25 & True & 300 & 50 & True &  & False & 0 & True & 0.5 & sgd-lr\_.005 & 44.98 & 57.12 & 54.86\\
+generic & False & False & 5 & 5 & True & 100 & 300 & True &  & False & 0 & True & 0.25 & sgd-lr\_.005 & 48.20 & 57.21 & 55.50\\
+generic & False & False & 25 & 25 & True & 300 & 200 & True &  & False & 0 & True & 0.0 & sgd-lr\_.005 & 48.38 & 57.65 & 55.95\\
+generic & False & False & 5 & 5 & True & 100 & 200 & True &  & False & 0 & True & 0.0 & sgd-lr\_.005 & 42.18 & 56.51 & 54.14\\
+generic & False & False & 25 & 25 & True & 200 & 300 & True &  & False & 0 & True & 0.0 & sgd-lr\_.005 & 49.36 & 57.96 & 56.24\\
+generic & False & False & 25 & 25 & True & 100 & 200 & True &  & False & 0 & True & 0.25 & sgd-lr\_.005 & 49.91 & 58.14 & 56.57\\
+generic & False & False & 5 & 5 & True & 300 & 200 & True &  & False & 0 & True & 0.25 & sgd-lr\_.005 & 46.19 & 58.31 & 56.07\\
+generic & False & False & 5 & 5 & True & 100 & 300 & True &  & False & 0 & True & 0.5 & sgd-lr\_.005 & 48.36 & 56.32 & 54.74\\
+generic & False & False & 25 & 25 & True & 100 & 300 & True &  & False & 0 & True & 0.0 & sgd-lr\_.005 & 46.65 & 58.10 & 55.91\\
+generic & False & False & 25 & 25 & True & 300 & 200 & True &  & False & 0 & True & 0.25 & sgd-lr\_.005 & 49.98 & 57.22 & 55.73\\
+generic & False & False & 5 & 5 & True & 200 & 200 & True &  & False & 0 & True & 0.25 & sgd-lr\_.005 & 47.23 & 56.92 & 55.12\\
+generic & False & False & 25 & 25 & True & 300 & 400 & True &  & False & 0 & True & 0.5 & sgd-lr\_.005 & 47.31 & 57.79 & 55.84\\
+generic & False & False & 5 & 5 & True & 200 & 100 & True &  & False & 0 & True & 0.25 & sgd-lr\_.005 & 49.14 & 57.25 & 55.52\\
+generic & False & False & 25 & 25 & True & 100 & 100 & True &  & False & 0 & True & 0.25 & sgd-lr\_.005 & 49.75 & 57.59 & 55.85\\
+generic & False & False & 5 & 5 & True & 200 & 200 & True &  & False & 0 & True & 0.0 & sgd-lr\_.005 & 45.01 & 57.00 & 54.59\\
+generic & False & False & 5 & 5 & True & 300 & 200 & True &  & False & 0 & True & 0.5 & sgd-lr\_.005 & 46.94 & 57.42 & 55.30\\
+generic & False & False & 5 & 5 & True & 200 & 100 & True &  & False & 0 & True & 0.0 & sgd-lr\_.005 & 47.30 & 56.97 & 55.01\\
+generic & False & False & 5 & 5 & True & 300 & 100 & True &  & False & 0 & True & 0.25 & sgd-lr\_.005 & 41.85 & 57.14 & 54.42\\
+generic & False & False & 5 & 5 & True & 100 & 100 & True &  & False & 0 & True & 0.0 & sgd-lr\_.005 & 46.67 & 56.04 & 54.27\\
+generic & False & False & 25 & 25 & True & 200 & 200 & True &  & False & 0 & True & 0.0 & sgd-lr\_.005 & 47.09 & 56.51 & 54.71\\
+generic & False & False & 25 & 25 & True & 200 & 100 & True &  & False & 0 & True & 0.25 & sgd-lr\_.005 & 49.54 & 57.91 & 56.33\\
+generic & False & False & 25 & 25 & True & 200 & 100 & True &  & False & 0 & True & 0.0 & sgd-lr\_.005 & 47.76 & 56.54 & 54.90\\
+generic & False & False & 25 & 25 & True & 100 & 100 & True &  & False & 0 & True & 0.0 & sgd-lr\_.005 & 49.70 & 57.91 & 56.32\\
+generic & False & False & 5 & 5 & True & 300 & 300 & True &  & False & 0 & True & 0.0 & sgd-lr\_.005 & 45.87 & 56.51 & 54.59\\
+generic & False & False & 5 & 5 & True & 200 & 300 & True &  & False & 0 & True & 0.0 & sgd-lr\_.005 & 46.77 & 56.13 & 54.44\\
+generic & False & False & 25 & 25 & True & 300 & 500 & True &  & False & 0 & True & 0.5 & sgd-lr\_.005 & 43.45 & 58.52 & 55.91\\
+generic & False & False & 25 & 25 & True & 300 & 600 & True &  & False & 0 & True & 0.5 & sgd-lr\_.005 & 45.73 & 57.70 & 55.46\\
+generic & False & False & 5 & 5 & True & 300 & 300 & True &  & False & 0 & True & 0.25 & sgd-lr\_.005 & 44.62 & 57.31 & 54.98\\
+generic & False & False & 5 & 5 & True & 100 & 100 & True &  & False & 0 & True & 0.25 & sgd-lr\_.005 & 47.32 & 58.15 & 56.10\\
+generic & False & False & 5 & 5 & True & 100 & 100 & True &  & False & 0 & True & 0.5 & sgd-lr\_.005 & 40.86 & 57.78 & 54.84\\
+generic & False & False & 5 & 5 & True & 100 & 200 & True &  & False & 0 & True & 0.25 & sgd-lr\_.005 & 47.58 & 56.53 & 54.86\\
+generic & False & False & 25 & 25 & True & 100 & 200 & True &  & False & 0 & True & 0.0 & sgd-lr\_.005 & 47.29 & 57.38 & 55.54\\
+generic & False & False & 5 & 5 & True & 300 & 300 & True &  & False & 0 & True & 0.5 & sgd-lr\_.005 & 46.23 & 59.57 & 56.99\\
+generic & False & False & 25 & 25 & True & 300 & 300 & True &  & False & 0 & True & 0.5 & sgd-lr\_.005 & 44.73 & 58.45 & 56.08\\
+generic & False & False & 25 & 25 & True & 200 & 300 & True &  & False & 0 & True & 0.25 & sgd-lr\_.005 & 46.99 & 57.47 & 55.59\\
+generic & False & False & 25 & 25 & True & 100 & 300 & True &  & False & 0 & True & 0.25 & sgd-lr\_.005 & 44.83 & 58.96 & 56.37\\
+generic & False & False & 5 & 5 & True & 200 & 300 & True &  & False & 0 & True & 0.5 & sgd-lr\_.005 & 45.39 & 58.48 & 55.89\\
+generic & False & False & 25 & 25 & True & 300 & 25 & True &  & False & 0 & True & 0.5 & sgd-lr\_.005 & 46.67 & 56.88 & 54.89\\
+generic & False & False & 25 & 25 & True & 300 & 75 & True &  & False & 0 & True & 0.5 & sgd-lr\_.005 & 48.97 & 57.24 & 55.53\\
+generic & False & False & 25 & 25 & True & 300 & 300 & True &  & False & 0 & True & 0.25 & sgd-lr\_.005 & 50.52 & 58.69 & 57.04
+\end{tabular}
+\end{adjustbox}
