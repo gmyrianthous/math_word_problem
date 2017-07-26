@@ -515,7 +515,7 @@ def train(data, dataset_name, iterations=5,  debugging=False):
 
 			if solution == prediction:
 				training_accuracy += 1
-
+ 
 		# Averaging weights
 		for key, value in weights.items():
 			averaged_weights[key] += value
