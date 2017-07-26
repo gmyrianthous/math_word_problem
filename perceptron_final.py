@@ -386,6 +386,10 @@ def extract_combination_features(problem, combination):
 	# Feature 5: secondOperation in template
 	if len(operations) > 1:
 		features['secondOperation:'+operations[1]] += 1
+	if len(operations) > 2:
+		features['thirdOperation:'+operations[2]] += 1
+	if len(operations) > 3:
+		features['fourthOperation:'+operations[3]] += 1
 
 	# Feature 6: asksHowMany:True/False_resultType:int/float
 	combination_result = eval(combination)
@@ -470,6 +474,7 @@ def argmax(problem, weights, dataset_name):
 def train(data, dataset_name, iterations=5,  debugging=False):
 	# Initialise the weights
 	weights = initialise_weights(data)
+	averaged_weights = initialise_weights(data)
 
 	training_accuracies = []
 	# Multiple passes
@@ -511,11 +516,19 @@ def train(data, dataset_name, iterations=5,  debugging=False):
 			if solution == prediction:
 				training_accuracy += 1
 
+		# Averaging weights
+		for key, value in weights.items():
+			averaged_weights[key] += value
+
+
 		# Compute the training accuracy for each iteration
 		accuracy = training_accuracy / len(data) * 100
 		training_accuracies.append(accuracy)
 
-	return weights, training_accuracies
+		for key, value in averaged_weights.items():
+			averaged_weights[key] = value / iterations
+
+	return averaged_weights, training_accuracies
 
 # Testing phase of structured perceptron
 def test(data, weights, dataset_name, debugging=False):
