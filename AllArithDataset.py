@@ -12,6 +12,9 @@ from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.tag.perceptron import PerceptronTagger
 from nltk.parse.stanford import StanfordDependencyParser
 
+random.seed(146)
+
+
 # Get the numbers that appear in the template. 
 def get_numbers_in_template(quantities, alignment):
 	numbers = []
@@ -56,6 +59,11 @@ def extract_features(data, indices):
 			solution = math_problem['lSolutions'][0]
 
 			# Get the number of quantities that appear in the text
+			number_of_quantities = len(alignment)
+
+			# Get the numbers in the correct order
+			numbers = get_numbers_in_template(quantities, alignment)
+
 			number_of_quantities = len(quantities)
 
 			# Get the numbers in the correct order
@@ -93,6 +101,33 @@ def extract_features(data, indices):
 				features['previousWord:'+str(previous_words[i+1])+"_operation:"+operations[i]] += 1
 
 
+			# Feature 2: previous2word:word_operation_op
+			#previous2wordstemp = []
+
+			#for i in range(0, len(quantities)):
+			#	curr_index = quantities[i]['start']-2-len(previous_words_temp[i])-1
+
+			#	if question[curr_index] == " ":
+			#		curr_index -= 1
+
+			#	reversed_word = ""
+			#	curr_char = question[curr_index]
+			#	while curr_char != " " and curr_index >= 0:
+			#		reversed_word += curr_char
+			#		curr_index -= 1
+			#		curr_char = question[curr_index]
+			#	previous2wordstemp.append(re.sub('[^A-Za-z0-9]+', '', reversed_word[::-1]).lower())
+	
+			#print(previous2wordstemp)
+			#previous2words = []
+			#for order in alignment:
+			#	previous2words.append(previous2wordstemp[order])
+
+			#features['previous2Word:'+str(previous2words[0])+"_operation:+"] += 1
+			#for i in range(0, len(operations)):
+			#	features['previous2Word:'+str(previous2words[i+1])+"_operation:"+operations[i]] += 1
+
+
 			# Feature 2: nextWord:word_operation_-
 			next_words_temp = []
 			for i in range(0, len(quantities)):
@@ -117,18 +152,59 @@ def extract_features(data, indices):
 				features['nextWord:'+str(next_words[i+1])+"_operation:"+operations[i]] += 1
 
 
+			# Feature 3: next2Word:word_operation:op
+			#next2wordstemp = []
+			#for i in range(0, len(quantities)):
+			#	curr_index = quantities[i]['end']+1+len(next_words_temp[i])+1
+
+			#	word = ""
+
+			#	if curr_index > len(question)-1: 
+			#		next2wordstemp.append("not_found")			
+			#	else:
+			#		curr_char = question[curr_index]
+
+			#		while curr_char != " " and curr_index < len(question)-1:
+			#			word += curr_char
+			#			curr_index += 1
+			#			curr_char = question[curr_index]
+			#		if word == "":
+			#			next2wordstemp.append("not_found")
+			#		else:
+			#			next2wordstemp.append(re.sub('[^A-Za-z0-9]+', '', word).lower())
+
+
+			# Put the words in the correct order
+			#next2words = []
+			#for order in alignment:
+			#	next2words.append(next2wordstemp[order])
+
+			#print(question)
+			#print(next2words)
+
+
+			# For the first number that appears in the template the sign is always positive
+			#features['next2Word:'+str(next2words[0])+"_operation:+"] += 1
+			#for i in range(0, len(operations)):
+			#	features['next2Word:'+str(next2words[i+1])+"_operation:"+operations[i]] += 1			
 
 			# Feature 3: eachFlag:True/False_operation:op
 			if ' each' in question:
 				features['questionContainsEach:True_lastOperation:'+operations[-1]] += 1
+
+
 
 			# Feature 4: operation:op_positionInTemplate:pos
 			for i in range(0, len(operations)):
 				features['operation:'+operations[i]+"_positionInTemplate:"+str(i+1)] += 1
 
 			# Feature 5: secondOperation in template
-			if len(operations) > 1:
-				features['secondOperation:'+operations[1]] += 1
+			#if len(operations) > 1:
+			#	features['secondOperation:'+operations[1]] += 1
+			#if len(operations) > 2:
+			#	features['thirdOperation:'+operations[2]] += 1
+			#if len(operations) > 3:
+			#	features['fourthOperation:'+operations[3]] += 1
 
 			# Feature 6: asksHowMany:True/False_resultType:int/float
 			if 'how many' in question:
@@ -167,6 +243,9 @@ def extract_features(data, indices):
 			id_features_dict[index]['operations'] = operations
 			id_features_dict[index]['previousWords'] = previous_words
 			id_features_dict[index]['nextWords'] = next_words
+			id_features_dict[index]['quantities'] = quantities
+			#id_features_dict[index]['previous2words'] = previous2words
+			#id_features_dict[index]['next2words'] = next2words
 
 	return id_features_dict
 
