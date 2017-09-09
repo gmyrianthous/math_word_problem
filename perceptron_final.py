@@ -20,8 +20,8 @@ from decimal import Decimal
 
 
 # Paths for NLTK models
-path_to_jar = 'stanford-corenlp-full-2017-06-09/stanford-corenlp-3.8.0.jar' 
-path_to_models_jar = 'stanford-corenlp-full-2017-06-09/stanford-corenlp-3.8.0-models.jar'
+#path_to_jar = 'stanford-corenlp-full-2017-06-09/stanford-corenlp-3.8.0.jar' 
+#path_to_models_jar = 'stanford-corenlp-full-2017-06-09/stanford-corenlp-3.8.0-models.jar'
 
 # Returns: list of dicts
 def read_data_json(filename):
@@ -161,7 +161,7 @@ def convert_template(equation, alignment, numbers, operations):
 # Extract features for a given set of data points.
 def extract_features(data, indices):
 	# Syntactic dependecy parser (Stanford corenlp)
-	dependency_parser = StanfordDependencyParser(path_to_jar=path_to_jar, path_to_models_jar=path_to_models_jar)
+	#dependency_parser = StanfordDependencyParser(path_to_jar=path_to_jar, path_to_models_jar=path_to_models_jar)
 
 	id_features_dict = OrderedDict()
 
