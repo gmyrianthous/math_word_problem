@@ -5,9 +5,9 @@ System requirements:
 - numpy
 
 
-How to execute the program: 
+Execution:
     python3 perceptron_final.py datasetName
 
 
-datasetName = {SingleOp, MultiArith, AllArith, AllArithLex, AllArithTmpl}
+    where datasetName = {SingleOp, MultiArith, AllArith, AllArithLex, AllArithTmpl}
 
